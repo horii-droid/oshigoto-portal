@@ -301,6 +301,7 @@ const TRENDS = [
   {
     id: 'trend-2026-10-08',
     date: '2026-10-08',
+    author: '田中さん',
     title: '教育現場の最新トレンド・ニュースピックアップ',
     file: 'files/trend-2026-10-08.pdf',
     filename: 'キャリア教育の最新トレンドと現場_261008.pdf',
@@ -398,6 +399,7 @@ function renderTrends() {
       el('div', { class: 'date' }, el('b', {}, `${Number(m)}/${Number(d)}`), el('span', {}, `${y}年`), i === 0 ? el('span', { class: 'new' }, '最新') : null),
       el('div', { class: 'main' },
         el('h3', {}, t.title),
+        t.author ? el('div', { class: 'school' }, `まとめ：${t.author}`) : null,
         el('ul', { class: 'topics' }, t.topics.map(([h, p]) => el('li', {}, h, el('span', {}, p)))),
         el('div', { class: 'actions' },
           el('button', { class: 'btn ghost', onclick: () => openViewer(t.id) }, '全文を見る'),
