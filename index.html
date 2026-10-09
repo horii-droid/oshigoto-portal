@@ -294,7 +294,23 @@ const DOCS = [
 // 例: { id: 'visit-2026-11-05', date: '2026-11-05', school: '○○市立△△小学校', grade: '3年生', title: '授業の内容（一言）',
 //       file: 'files/visit-2026-11-05.pdf', filename: '….pdf', pages: ['pages/visit-2026-11-05-01.jpg'], portrait: true,
 //       voices: [['感想の本文', '3年 児童']] }
-const VISITS = [];
+const VISITS = [
+  {
+    id: 'visit-2026-10-07',
+    date: '2026-10-07',
+    school: '西成東小学校',
+    grade: '6年生 2クラス',
+    title: '株式会社Askalカバン工房「アップサイクルとは／夢とは」',
+    file: 'files/visit-2026-10-07.pdf',
+    filename: '出張授業レポート_西成東小学校_20261007.pdf',
+    pages: ['pages/visit-2026-10-07-01.jpg'], portrait: true,
+    voices: [
+      ['夢がなくても、これから見つかるんだ。', '6年 児童'],
+      ['お仕事ノートを読んで、企業様を選ばせていただいている。', '担当の先生'],
+      ['そこを一任出来ると聞いた時、これはすぐに頼らせてもらおうって思えた。', '担当の先生'],
+    ],
+  },
+];
 
 // トレンド便（新しい号はこの配列の先頭に1件足す）
 const TRENDS = [
