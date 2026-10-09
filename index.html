@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>お仕事ノート・ブック 営業資料ポータル</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
+<style>
+  /* レイアウト: 左寄せの1カラム。上に「商談の流れ」3ステップ、その下に絞り込み＋資料カード */
+  :root {
+    --bg: #F7F5F0;
+    --surface: #FFFFFF;
+    --ink: #1F2A44;
+    --ink-mid: #5D6577;
+    --line: #E4E0D6;
+    --orange: #E8892A;
+    --indigo: #5F63A6;
+    --pink: #D9518C;
+    --green: #6FA82E;
+    --chip: #EFECE4;
+    --chip-on: #1F2A44;
+    --chip-on-ink: #FFFFFF;
+    --scrim: rgba(20, 24, 36, .62);
+    --font: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #161A24; --surface: #212736; --ink: #ECEDF2; --ink-mid: #A2A9BA; --line: #343B4D;
+      --orange: #F2A04F; --indigo: #9599D6; --pink: #EE80AF; --green: #9ACB5C;
+      --chip: #2A3142; --chip-on: #ECEDF2; --chip-on-ink: #161A24; --scrim: rgba(0, 0, 0, .72);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161A24; --surface: #212736; --ink: #ECEDF2; --ink-mid: #A2A9BA; --line: #343B4D;
+    --orange: #F2A04F; --indigo: #9599D6; --pink: #EE80AF; --green: #9ACB5C;
+    --chip: #2A3142; --chip-on: #ECEDF2; --chip-on-ink: #161A24; --scrim: rgba(0, 0, 0, .72);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font); line-height: 1.7; font-size: 15px; }
+  .stripe { height: 6px; background: linear-gradient(to right, var(--orange) 0 25%, var(--indigo) 25% 50%, var(--pink) 50% 75%, var(--green) 75% 100%); }
+  .wrap { max-width: 1040px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; display: grid; gap: 36px; }
+
+  header { display: grid; gap: 8px; }
+  .eyebrow { font-size: 12px; letter-spacing: .12em; color: var(--ink-mid); font-weight: 700; }
+  h1 { margin: 0; font-size: clamp(24px, 4.2vw, 34px); font-weight: 900; line-height: 1.35; text-wrap: balance; }
+  h1 .note { color: var(--orange); }
+  .lead { margin: 0; color: var(--ink-mid); max-width: 60ch; }
+
+  h2 { margin: 0; font-size: 17px; font-weight: 700; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  h2 small { font-size: 12px; color: var(--ink-mid); font-weight: 500; }
+
+  /* 商談の流れ */
+  .flow { display: grid; gap: 14px; }
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; counter-reset: s; }
+  .steps li { counter-increment: s; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
+  .steps li::before { content: "STEP " counter(s); font-size: 11px; letter-spacing: .1em; font-weight: 700; color: var(--c); }
+  .steps b { font-size: 15px; }
+  .steps span { font-size: 13px; color: var(--ink-mid); }
+  .steps a { font-size: 13px; color: var(--c); font-weight: 700; text-decoration: none; justify-self: start; }
+  .steps a:hover { text-decoration: underline; }
+
+  /* 絞り込み */
+  .filters { display: grid; gap: 10px; }
+  .frow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .flabel { font-size: 12px; color: var(--ink-mid); width: 3.5em; flex: none; font-weight: 700; }
+  .chip { font: inherit; font-size: 13px; border: 0; background: var(--chip); color: var(--ink); padding: 6px 14px; border-radius: 999px; cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--chip-on); color: var(--chip-on-ink); font-weight: 700; }
+  .chip:focus-visible, .btn:focus-visible, .steps a:focus-visible, .x:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+
+  /* カード */
+  .list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: grid; grid-template-rows: auto 1fr; min-width: 0; }
+  .thumb { aspect-ratio: 16 / 9; max-width: 100%; background: var(--chip); border: 0; padding: 0; cursor: pointer; display: block; width: 100%; overflow: hidden; position: relative; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+  .thumb .fmt { position: absolute; left: 10px; top: 10px; font-size: 11px; font-weight: 700; letter-spacing: .08em; background: var(--surface); color: var(--ink); padding: 2px 8px; border-radius: 4px; }
+  .pptx-cover { width: 100%; height: 100%; background: var(--indigo); color: #fff; display: grid; place-content: center; padding: 18px; text-align: left; gap: 6px; }
+  .pptx-cover b { font-size: 18px; line-height: 1.4; }
+  .pptx-cover span { font-size: 12px; opacity: .85; }
+  .body { padding: 16px 18px 18px; display: grid; gap: 10px; align-content: start; }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag { font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 4px; border: 1px solid currentColor; }
+  .tag.scene { color: var(--c); }
+  .tag.target { color: var(--ink-mid); }
+  .card h3 { margin: 0; font-size: 16px; line-height: 1.5; text-wrap: balance; }
+  .use { margin: 0; font-size: 13px; background: var(--bg); border-radius: 6px; padding: 8px 10px; }
+  .use::before { content: "こんな場面で："; font-weight: 700; }
+  .points { margin: 0; padding-left: 1.2em; font-size: 13.5px; display: grid; gap: 2px; }
+  .caution { margin: 0; font-size: 12px; color: var(--pink); }
+  .meta { font-size: 12px; color: var(--ink-mid); font-variant-numeric: tabular-nums; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn { font: inherit; font-size: 13px; font-weight: 700; border-radius: 8px; padding: 8px 14px; cursor: pointer; border: 1px solid var(--ink); background: var(--ink); color: var(--bg); }
+  .btn.ghost { background: transparent; color: var(--ink); }
+  .btn[disabled] { opacity: .5; cursor: default; }
+  .empty { color: var(--ink-mid); font-size: 14px; }
+  .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); max-width: calc(100vw - 32px); font-size: 13px; background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 8px; z-index: 5; }
+  .toast:empty { display: none; }
+
+  /* 出張授業レポート */
+  .visits { display: grid; gap: 12px; }
+  .placeholder { border: 1.5px dashed var(--line); border-radius: 12px; padding: 22px 18px; display: grid; gap: 6px; justify-items: start; }
+  .placeholder b { font-size: 14px; }
+  .placeholder span { font-size: 13px; color: var(--ink-mid); }
+  .visit .school { font-size: 12.5px; color: var(--ink-mid); }
+  .voices { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .voices li { font-size: 13.5px; padding: 6px 10px; background: var(--bg); border-radius: 6px; }
+  .voices li small { display: block; font-size: 11.5px; color: var(--ink-mid); }
+
+  /* トレンド便 */
+  .trend { display: grid; gap: 14px; }
+  .tnote { margin: 0; font-size: 12px; color: var(--ink-mid); max-width: 70ch; }
+  .issues { display: grid; gap: 12px; }
+  .issue { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: grid; grid-template-columns: 6.5em minmax(0, 1fr); gap: 4px 18px; }
+  .issue .date { font-variant-numeric: tabular-nums; display: grid; align-content: start; gap: 2px; }
+  .issue .date b { font-size: 20px; font-weight: 900; line-height: 1.2; }
+  .issue .date span { font-size: 12px; color: var(--ink-mid); }
+  .issue .new { justify-self: start; font-size: 10px; font-weight: 700; letter-spacing: .08em; color: #fff; background: var(--pink); border-radius: 4px; padding: 0 6px; margin-top: 4px; }
+  .issue .main { display: grid; gap: 8px; min-width: 0; }
+  .issue h3 { margin: 0; font-size: 15px; }
+  .topics { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .topics li { font-size: 13.5px; display: grid; gap: 1px; padding-left: 12px; border-left: 3px solid var(--line); }
+  .topics li span { font-size: 12.5px; color: var(--ink-mid); }
+  .topics li span::before { content: "誌面づくり："; font-weight: 700; color: var(--green); }
+
+  footer { font-size: 12px; color: var(--ink-mid); border-top: 1px solid var(--line); padding-top: 14px; }
+
+  /* ビューア */
+  dialog { border: 0; padding: 0; width: min(980px, 100vw - 24px); max-height: calc(100dvh - 24px); background: var(--bg); color: var(--ink); border-radius: 12px; }
+  dialog::backdrop { background: var(--scrim); }
+  .vhead { position: sticky; top: 0; background: var(--surface); border-bottom: 1px solid var(--line); padding: 12px 16px; display: flex; gap: 12px; align-items: center; z-index: 1; }
+  .vhead h4 { margin: 0; font-size: 15px; flex: 1; min-width: 0; line-height: 1.4; }
+  .x { font: inherit; border: 0; background: var(--chip); color: var(--ink); border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 13px; flex: none; }
+  .vbody { padding: 16px; display: grid; gap: 14px; }
+  .pg { display: grid; gap: 4px; }
+  .pg img { width: 100%; border-radius: 6px; border: 1px solid var(--line); background: #fff; }
+  .pg figcaption { font-size: 11px; color: var(--ink-mid); text-align: right; font-variant-numeric: tabular-nums; }
+  .slides { display: grid; gap: 10px; }
+  .slide { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; grid-template-columns: 2.4em minmax(0, 1fr); gap: 4px 10px; }
+  .slide .no { font-size: 12px; font-weight: 700; color: var(--indigo); font-variant-numeric: tabular-nums; }
+  .slide b { font-size: 14px; }
+  .slide p { grid-column: 2; margin: 0; font-size: 13px; color: var(--ink-mid); }
+  .slide.key { border-color: var(--indigo); }
+  .vnote { font-size: 12px; color: var(--ink-mid); margin: 0; }
+
+  @media (max-width: 640px) {
+    .steps { grid-template-columns: minmax(0, 1fr); }
+    .list { grid-template-columns: minmax(0, 1fr); }
+    .flabel { width: 100%; }
+    .issue { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .card { transition: transform .15s ease; }
+    .card:hover { transform: translateY(-2px); }
+  }
+</style>
+
+<div class="stripe"></div>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">株式会社ケイ・クリエイト ／ 社内営業向け</div>
+    <h1>お仕事ノート・ブック 営業資料ポータル</h1>
+    <p class="lead">商談の前に、使う資料をここで選んでください。カードの画像を押すと中身を確認でき、［ダウンロード］で元のファイルを保存できます。</p>
+  </header>
+
+  <section class="flow" aria-labelledby="flow-h">
+    <h2 id="flow-h">商談での使い分け <small>この順で話すと伝わりやすい流れ</small></h2>
+    <ol class="steps">
+      <li style="--c: var(--indigo)"><b>なぜ小3・中2なのか</b><span>キャリア教育の流れの中での位置づけを伝える</span><a href="#" data-open="career">キャリア教育の系統性 →</a></li>
+      <li style="--c: var(--green)"><b>学校で本当に使われている</b><span>授業で活用70%と先生方の声で効果を示す</span><a href="#" data-open="feedback">学校ヒアリング資料 →</a></li>
+      <li style="--c: var(--orange)"><b>協賛の条件を示す</b><span>部数・協賛金・締切・スケジュールを提示する</span><a href="#" data-open="ichinomiya">協賛ご提案（実例）→</a></li>
+    </ol>
+  </section>
+
+  <section class="filters" aria-labelledby="list-h">
+    <h2 id="list-h">資料一覧 <small id="count"></small></h2>
+    <div class="frow" role="group" aria-label="場面で絞り込み">
+      <span class="flabel">場面</span>
+      <button class="chip" id="s-all" data-scene="all" aria-pressed="true">すべて</button>
+      <button class="chip" id="s-teian" data-scene="提案" aria-pressed="false">協賛社への提案</button>
+      <button class="chip" id="s-konkyo" data-scene="根拠" aria-pressed="false">効果の根拠</button>
+      <button class="chip" id="s-igi" data-scene="意義" aria-pressed="false">教育的な意義の説明</button>
+    </div>
+    <div class="frow" role="group" aria-label="対象で絞り込み">
+      <span class="flabel">対象</span>
+      <button class="chip" id="t-all" data-target="all" aria-pressed="true">すべて</button>
+      <button class="chip" id="t-note" data-target="note" aria-pressed="false">お仕事ノート（小3）</button>
+      <button class="chip" id="t-book" data-target="book" aria-pressed="false">お仕事ブック（中2）</button>
+    </div>
+    <div class="list" id="list"></div>
+  </section>
+
+  <section class="trend" aria-labelledby="visit-h">
+    <h2 id="visit-h">出張授業レポート <small>小学校への出張授業で届いた感想（新しい順）</small></h2>
+    <div class="visits" id="visits"></div>
+  </section>
+
+  <section class="trend" aria-labelledby="trend-h">
+    <h2 id="trend-h">キャリア教育トレンド便 <small>定期的に届く教育現場のニュースまとめ（新しい順）</small></h2>
+    <p class="tnote">学習指導要領や教育現場の動きを、営業トークや誌面づくりのヒントとして使ってください。AIでまとめたニュースのため、商談で制度名や数字を出すときは出典を確認してください。</p>
+    <div class="issues" id="issues"></div>
+  </section>
+
+  <footer>資料の追加・差し替えは堀井までご連絡ください。</footer>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<dialog id="viewer" aria-labelledby="v-title">
+  <div class="vhead">
+    <h4 id="v-title"></h4>
+    <button class="btn" id="v-dl">ダウンロード</button>
+    <button class="x" id="v-close">閉じる</button>
+  </div>
+  <div class="vbody" id="v-body"></div>
+</dialog>
+
+<script>
+// 資料データ（追加はこの配列に1件足す）
+const SCENES = {
+  提案: { label: '協賛社への提案', color: 'var(--orange)' },
+  根拠: { label: '効果の根拠', color: 'var(--green)' },
+  意義: { label: '教育的な意義の説明', color: 'var(--indigo)' },
+};
+const TARGETS = { note: 'お仕事ノート（小3）', book: 'お仕事ブック（中2）' };
+
+const DOCS = [
+  {
+    id: 'career',
+    title: 'キャリア教育の系統性と「お仕事ノート・ブック」の役割',
+    format: 'PPTX', file: 'files/career-education.pptx.b64.txt', encoded: true, webFile: 'files/career-education.pptx',
+    filename: 'キャリア教育の系統性と「お仕事ノート・ブック」の役割.pptx',
+    scene: '意義', targets: ['note', 'book'], updated: '2026-08-21', pagesLabel: '12枚',
+    use: '「なぜ小3と中2に配るのか」を校長先生や協賛社に説明したいとき',
+    points: [
+      '小3は社会科が始まり、関心が家族から地域の仕事へ広がる「関心の入口」',
+      '中2は職場体験の年。受験期に入る前に社会と向き合う最後の節目',
+      '小1〜高3の12年間のキャリア教育の中で、2冊の位置づけを一覧で示せる',
+    ],
+    slides: [
+      ['キャリア教育の系統的展開と「お仕事ノート・ブック」の役割', '小学校から高等学校までの発達段階に応じた一貫ストーリーと、小3・中2における効果的なキャリア教材の導入エビデンス'],
+      ['CHAPTER 01 キャリア教育の全体像と理念', '一人ひとりの社会的・職業的自立に向け、発達段階に応じて段階的に勤労観・職業観を育む12年間の体系的プログラム'],
+      ['義務教育9年間のストーリー構造', '小3で「世の中にはたくさんの仕事がある」という気づきを創出。中2の5日間の職場体験で、小学校から蓄積した「仕事への関心」を実践・検証する'],
+      ['小学校：社会や働くことへの「関心」の育成', '低学年は学校適応と身近な役割、中学年は地域探検と協力関係、高学年は責任遂行と夢の形成'],
+      ['小3「お仕事ノート」導入のエビデンス', '①3年から社会科がスタートし「街が誰かの仕事で成り立っている」と初めて実感 ②関心が家族から「街で働く人々」へ拡がるターニングポイント ③国語の「働く人へのインタビュー」など他教科と連動', true],
+      ['中学校：現実社会に触れ「勤労観」の土台を作る', '中1は環境適応と自己理解、中2は職場体験を中心に職業観を形成、中3は進路計画の立案'],
+      ['中2「お仕事ブック」活用の意義', '①義務教育最大の体験「職場体験」の核 ②受験に追われる中3の前に「社会や生き方」を考える最後の機会 ③「なぜ勉強するのか」という葛藤に、本物の社会との出会いで納得の着地を与える', true],
+      ['高校：将来の「自立」に向けた挑戦', '探究学習（PBL）・インターンシップ、志望理由書や社会人マナーの習得を通じて進路決定へ'],
+      ['全学年共通ツール：キャリア・パスポート', '小・中・高12年間の学びを記録・蓄積するポートフォリオ。振り返りの習慣化と、校種間の引き継ぎに使われる'],
+      ['発達段階別 目標と主な取り組み一覧', '小3・4年の地域探検・施設見学で★お仕事ノート配布、中2の職場体験・マナー講座で★お仕事ブック配布、と一覧表で位置づけを示す', true],
+      ['キャリア発達のタイムライン', '適応と発見 → 関心の入口（お仕事ノート）→ 役割と基礎 → 実質的出口（お仕事ブック）→ 進路と自立'],
+      ['ご清聴ありがとうございました', '一貫したストーリーを持つキャリア教育で、子どもたちの未来を拓く「生きる力」を育みます。'],
+    ],
+  },
+  {
+    id: 'feedback',
+    title: 'お仕事ノート 学校ヒアリング フィードバック資料（全国共通版）',
+    format: 'PDF', file: 'files/feedback.pdf',
+    filename: 'お仕事ノート 学校ヒアリング フィードバック資料.pdf',
+    scene: '根拠', targets: ['note'], updated: '2026-10-09',
+    pages: ['pages/feedback-01.jpg', 'pages/feedback-02.jpg', 'pages/feedback-03.jpg', 'pages/feedback-04.jpg', 'pages/feedback-05.jpg', 'pages/feedback-06.jpg'],
+    use: '継続掲載のお願いや、「本当に学校で使われているの？」と聞かれたとき',
+    points: [
+      '授業で活用70%、配布のみ（家庭へ持ち帰り）30%',
+      '先生方のコメントを原文のまま掲載',
+      '継続掲載の4つのメリット：採用ブランディング／CSRの可視化／家庭への波及／従業員のロイヤリティ',
+    ],
+    caution: '地域名を入れない全国共通版です。どの版の商談でも使えます。',
+  },
+  {
+    id: 'ichinomiya',
+    title: 'お仕事ノート 協賛ご提案（一宮市版 v4）',
+    format: 'PDF', file: 'files/ichinomiya-proposal-v4.pdf',
+    filename: 'お仕事ノート協賛ご提案_一宮市版_v4.pdf',
+    scene: '提案', targets: ['note'], updated: '2026-10-09',
+    pages: ['pages/ichinomiya-v4-01.jpg'], portrait: true,
+    use: '協賛社に、部数・協賛金・締切を1枚で提示したいとき（他の版で作るときのお手本）',
+    points: [
+      '一宮市内の全42校・3〜4年生、8,600部（2027年1月末頃発行）',
+      '協賛金200,000円（税別）／見開き2ページ、協賛締切2026年12月上旬',
+      '協賛企業への3つの価値：#地域とつなぐ ／ #親子をつなぐ ／ #未来へつなぐ',
+    ],
+    caution: '一宮市版の実例です。他の版で使うときは、校数・部数・日程を差し替えてください。',
+  },
+];
+
+// 出張授業レポート（新しい回はこの配列の先頭に1件足す）
+// 例: { id: 'visit-2026-11-05', date: '2026-11-05', school: '○○市立△△小学校', grade: '3年生', title: '授業の内容（一言）',
+//       file: 'files/visit-2026-11-05.pdf', filename: '….pdf', pages: ['pages/visit-2026-11-05-01.jpg'], portrait: true,
+//       voices: [['感想の本文', '3年 児童']] }
+const VISITS = [];
+
+// トレンド便（新しい号はこの配列の先頭に1件足す）
+const TRENDS = [
+  {
+    id: 'trend-2026-10-08',
+    date: '2026-10-08',
+    title: '教育現場の最新トレンド・ニュースピックアップ',
+    file: 'files/trend-2026-10-08.pdf',
+    filename: 'キャリア教育の最新トレンドと現場_261008.pdf',
+    pages: ['pages/trend-2026-10-08-01.jpg', 'pages/trend-2026-10-08-02.jpg'], portrait: true,
+    topics: [
+      ['次期学習指導要領で強まる「マイ探究（個人探究）」と情報教育の体系化', '個人の興味を探究テーマに変える「マイ探究発掘シート」、職場のデータ分析や情報モラルのリアル'],
+      ['「教科書『で』教える」探究学習へのシフトと教科連携', '仕事紹介に「この仕事で使われている学校の学び」（算数のグラフ化など）を明示'],
+      ['「好き・関心」を原動力にする自己発見・マッピング型ワークの広がり', '導入ページに「好きなこと」から職種へ矢印を伸ばすビジュアルマッピング型ワーク'],
+    ],
+  },
+];
+
+const state = { scene: 'all', target: 'all' };
+const $ = (s) => document.querySelector(s);
+const listEl = $('#list');
+const toast = $('#toast');
+let downloads = null;
+
+function el(tag, attrs = {}, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'class') n.className = v;
+    else if (k === 'style') n.setAttribute('style', v);
+    else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v);
+  }
+  for (const k of kids.flat()) if (k != null) n.append(k);
+  return n;
+}
+
+function render() {
+  const items = DOCS.filter((d) =>
+    (state.scene === 'all' || d.scene === state.scene) &&
+    (state.target === 'all' || d.targets.includes(state.target)));
+  $('#count').textContent = `${items.length}件 ／ 全${DOCS.length}件`;
+  listEl.replaceChildren();
+  if (!items.length) {
+    listEl.append(el('p', { class: 'empty' }, 'この条件に合う資料はまだありません。'));
+    return;
+  }
+  for (const d of items) {
+    const sc = SCENES[d.scene];
+    const thumbInner = d.pages
+      ? el('img', { src: d.pages[0], alt: `${d.title}の1ページ目`, loading: 'lazy' })
+      : el('div', { class: 'pptx-cover' }, el('b', {}, d.title), el('span', {}, `スライド${d.pagesLabel}・要点を表示`));
+    listEl.append(el('article', { class: 'card', style: `--c: ${sc.color}` },
+      el('button', { class: 'thumb', 'aria-label': `${d.title}の中身を見る`, onclick: () => openViewer(d.id) },
+        thumbInner, el('span', { class: 'fmt' }, d.format)),
+      el('div', { class: 'body' },
+        el('div', { class: 'tags' },
+          el('span', { class: 'tag scene' }, sc.label),
+          d.targets.map((t) => el('span', { class: 'tag target' }, TARGETS[t]))),
+        el('h3', {}, d.title),
+        el('p', { class: 'use' }, d.use),
+        el('ul', { class: 'points' }, d.points.map((p) => el('li', {}, p))),
+        d.caution ? el('p', { class: 'caution' }, d.caution) : null,
+        el('div', { class: 'meta' }, `${d.format} ・ ${d.pages ? d.pages.length + 'ページ' : d.pagesLabel} ・ 更新 ${d.updated.replaceAll('-', '/')}`),
+        el('div', { class: 'actions' },
+          el('button', { class: 'btn ghost', onclick: () => openViewer(d.id) }, '中身を見る'),
+          el('button', { class: 'btn dl', onclick: () => download(d) }, 'ダウンロード')))));
+  }
+  syncDl();
+}
+
+function renderVisits() {
+  const box = $('#visits');
+  box.replaceChildren();
+  if (!VISITS.length) {
+    box.append(el('div', { class: 'placeholder' },
+      el('b', {}, '最初のレポートは準備中です'),
+      el('span', {}, '出張授業で児童や先生からいただいた感想を、実施日ごとにここへ載せていきます。')));
+    return;
+  }
+  VISITS.forEach((v, i) => {
+    const [y, m, d] = v.date.split('-');
+    box.append(el('article', { class: 'issue visit' },
+      el('div', { class: 'date' }, el('b', {}, `${Number(m)}/${Number(d)}`), el('span', {}, `${y}年`), i === 0 ? el('span', { class: 'new' }, '最新') : null),
+      el('div', { class: 'main' },
+        el('h3', {}, v.title),
+        el('div', { class: 'school' }, [v.school, v.grade].filter(Boolean).join(' ・ ')),
+        el('ul', { class: 'voices' }, (v.voices || []).map(([q, who]) => el('li', {}, `「${q}」`, who ? el('small', {}, who) : null))),
+        el('div', { class: 'actions' },
+          el('button', { class: 'btn ghost', onclick: () => openViewer(v.id) }, '全文を見る'),
+          el('button', { class: 'btn dl', onclick: () => download(v) }, 'ダウンロード')))));
+  });
+  syncDl();
+}
+
+function renderTrends() {
+  const box = $('#issues');
+  box.replaceChildren();
+  TRENDS.forEach((t, i) => {
+    const [y, m, d] = t.date.split('-');
+    box.append(el('article', { class: 'issue' },
+      el('div', { class: 'date' }, el('b', {}, `${Number(m)}/${Number(d)}`), el('span', {}, `${y}年`), i === 0 ? el('span', { class: 'new' }, '最新') : null),
+      el('div', { class: 'main' },
+        el('h3', {}, t.title),
+        el('ul', { class: 'topics' }, t.topics.map(([h, p]) => el('li', {}, h, el('span', {}, p)))),
+        el('div', { class: 'actions' },
+          el('button', { class: 'btn ghost', onclick: () => openViewer(t.id) }, '全文を見る'),
+          el('button', { class: 'btn dl', onclick: () => download(t) }, 'ダウンロード')))));
+  });
+  syncDl();
+}
+
+function setChip(group, value) {
+  document.querySelectorAll(`[data-${group}]`).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset[group] === value)));
+}
+document.querySelectorAll('[data-scene]').forEach((b) => b.addEventListener('click', () => { state.scene = b.dataset.scene; setChip('scene', state.scene); render(); }));
+document.querySelectorAll('[data-target]').forEach((b) => b.addEventListener('click', () => { state.target = b.dataset.target; setChip('target', state.target); render(); }));
+document.querySelectorAll('[data-open]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); openViewer(a.dataset.open); }));
+
+// ビューア
+const viewer = $('#viewer');
+let current = null;
+function openViewer(id) {
+  const d = DOCS.find((x) => x.id === id) || TRENDS.find((x) => x.id === id) || VISITS.find((x) => x.id === id);
+  if (!d) return;
+  current = d;
+  $('#v-title').textContent = d.title;
+  const body = $('#v-body');
+  body.replaceChildren();
+  if (d.pages) {
+    d.pages.forEach((src, i) => body.append(el('figure', { class: 'pg', style: 'margin:0' },
+      el('img', { src, alt: `${d.title} ${i + 1}ページ目`, loading: i ? 'lazy' : 'eager', style: d.portrait ? 'max-width:720px;justify-self:center' : '' }),
+      el('figcaption', {}, `${i + 1} / ${d.pages.length}`))));
+  } else {
+    body.append(el('p', { class: 'vnote' }, 'PowerPointはブラウザで表示できないため、スライドごとの要点を文字で載せています。枠で囲んだスライドが、お仕事ノート・ブックに直接関わるページです。デザインを確認するときはダウンロードして開いてください。'));
+    body.append(el('div', { class: 'slides' }, d.slides.map(([t, p, key], i) =>
+      el('div', { class: 'slide' + (key ? ' key' : '') }, el('span', { class: 'no' }, String(i + 1).padStart(2, '0')), el('b', {}, t), el('p', {}, p)))));
+  }
+  viewer.showModal();
+  body.scrollTop = 0;
+  viewer.scrollTop = 0;
+}
+$('#v-close').addEventListener('click', () => viewer.close());
+viewer.addEventListener('click', (e) => { if (e.target === viewer) viewer.close(); });
+$('#v-dl').addEventListener('click', () => current && download(current));
+
+// ダウンロード
+// PPTXは同梱できないためBase64テキストで置き、保存時に元のバイナリへ戻す
+function b64ToBlob(text) {
+  const bin = atob(text.trim());
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes]);
+}
+// GitHub Pages など通常のWebで開いたときは、普通のダウンロードリンクで保存する
+const ON_WEB = /(^|.)github.io$|^localhost$|^127.0.0.1$/.test(location.hostname);
+function syncDl() {
+  const ok = ON_WEB || !!downloads;
+  document.querySelectorAll('.btn.dl, #v-dl').forEach((b) => {
+    b.disabled = !ok;
+    b.title = ok ? '' : 'この画面ではダウンロードできません。';
+  });
+}
+async function download(d) {
+  if (ON_WEB) {
+    const a = document.createElement('a');
+    a.href = d.webFile || d.file;
+    a.download = d.filename;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    return;
+  }
+  if (!downloads) return;
+  toast.textContent = `「${d.title}」を準備しています…`;
+  try {
+    const res = await fetch(d.file);
+    if (!res.ok) throw new Error('fetch');
+    const blob = d.encoded ? b64ToBlob(await res.text()) : await res.blob();
+    await downloads.save({ filename: d.filename, data: blob });
+    toast.textContent = `「${d.title}」を保存しました。`;
+  } catch (err) {
+    const code = err && err.code;
+    if (code === 'declined') toast.textContent = '保存をキャンセルしました。';
+    else if (code === 'rate_limited') toast.textContent = '保存の確認画面がすでに開いています。そちらを閉じてからもう一度押してください。';
+    else toast.textContent = 'ファイルを保存できませんでした。時間をおいてもう一度お試しください。';
+  }
+}
+
+render();
+renderVisits();
+renderTrends();
+(async () => {
+  try { downloads = window.claude?.use ? await window.claude.use('downloads') : null; } catch { downloads = null; }
+  syncDl();
+})();
+</script>
+
+</body>
+</html>
