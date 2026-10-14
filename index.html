@@ -145,6 +145,9 @@
   .areas { display: grid; gap: 20px; }
   .area { display: grid; gap: 10px; }
   .area > h3 { margin: 0; font-size: 15px; padding-left: 10px; border-left: 4px solid var(--orange); }
+  .plans { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+  .plan .thumb { aspect-ratio: 297 / 210; background: #fff; }
+  .plan .thumb img { object-fit: contain; object-position: center; }
 
   footer { font-size: 12px; color: var(--ink-mid); border-top: 1px solid var(--line); padding-top: 14px; }
 
@@ -440,7 +443,26 @@ const ASSETS = [
 // 例: { name: '一宮市', docs: [{ id: 'plan-ichinomiya-n', title: '…', target: 'note',
 //       file: 'files/….pdf', filename: '….pdf', pages: ['pages/…-01.jpg'], portrait: true, updated: '2026-10-14' }] }
 const PREFS = [
-  { id: 'shizuoka', name: '静岡', areas: [] },
+  { id: 'shizuoka', name: '静岡', areas: [
+    { name: '伊豆市・伊豆の国市・函南町・熱海市・伊東市', docs: [{
+      id: 'plan-2027n-izu-atami-ito',
+      title: 'お仕事ノート 伊豆市・伊豆の国市・函南町・熱海市・伊東市版 発行企画概要（2027年1月発行）',
+      target: 'note',
+      file: 'files/plan-2027n-izu-atami-ito.pdf',
+      filename: '【営業用企画書】2027N_伊豆市・伊豆の国市・函南町・熱海市・伊東市版.pdf',
+      pages: ['pages/plan-2027n-izu-atami-ito-01.jpg', 'pages/plan-2027n-izu-atami-ito-02.jpg', 'pages/plan-2027n-izu-atami-ito-03.jpg', 'pages/plan-2027n-izu-atami-ito-04.jpg', 'pages/plan-2027n-izu-atami-ito-05.jpg', 'pages/plan-2027n-izu-atami-ito-06.jpg', 'pages/plan-2027n-izu-atami-ito-07.jpg', 'pages/plan-2027n-izu-atami-ito-08.jpg', 'pages/plan-2027n-izu-atami-ito-09.jpg', 'pages/plan-2027n-izu-atami-ito-10.jpg', 'pages/plan-2027n-izu-atami-ito-11.jpg', 'pages/plan-2027n-izu-atami-ito-12.jpg', 'pages/plan-2027n-izu-atami-ito-13.jpg', 'pages/plan-2027n-izu-atami-ito-14.jpg', 'pages/plan-2027n-izu-atami-ito-15.jpg', 'pages/plan-2027n-izu-atami-ito-16.jpg', 'pages/plan-2027n-izu-atami-ito-17.jpg', 'pages/plan-2027n-izu-atami-ito-18.jpg', 'pages/plan-2027n-izu-atami-ito-19.jpg', 'pages/plan-2027n-izu-atami-ito-20.jpg'],
+      updated: '2026-10-14',
+    }] },
+    { name: '静岡市', docs: [{
+      id: 'plan-2026n-shizuoka',
+      title: 'お仕事ノート 静岡市版 発行企画概要（2026年12月発行）',
+      target: 'note',
+      file: 'files/plan-2026n-shizuoka.pdf',
+      filename: '【営業用企画書】2026N_静岡市版.pdf',
+      pages: ['pages/plan-2026n-shizuoka-01.jpg', 'pages/plan-2026n-shizuoka-02.jpg', 'pages/plan-2026n-shizuoka-03.jpg', 'pages/plan-2026n-shizuoka-04.jpg', 'pages/plan-2026n-shizuoka-05.jpg', 'pages/plan-2026n-shizuoka-06.jpg', 'pages/plan-2026n-shizuoka-07.jpg', 'pages/plan-2026n-shizuoka-08.jpg', 'pages/plan-2026n-shizuoka-09.jpg', 'pages/plan-2026n-shizuoka-10.jpg', 'pages/plan-2026n-shizuoka-11.jpg', 'pages/plan-2026n-shizuoka-12.jpg', 'pages/plan-2026n-shizuoka-13.jpg', 'pages/plan-2026n-shizuoka-14.jpg', 'pages/plan-2026n-shizuoka-15.jpg', 'pages/plan-2026n-shizuoka-16.jpg', 'pages/plan-2026n-shizuoka-17.jpg', 'pages/plan-2026n-shizuoka-18.jpg', 'pages/plan-2026n-shizuoka-19.jpg', 'pages/plan-2026n-shizuoka-20.jpg'],
+      updated: '2026-10-14',
+    }] },
+  ] },
   { id: 'aichi', name: '愛知', areas: [] },
 ];
 const AREA_DOCS = PREFS.flatMap((p) => p.areas.flatMap((a) => a.docs));
@@ -559,7 +581,7 @@ function renderAreas() {
   for (const a of pref.areas) {
     box.append(el('div', { class: 'area' },
       el('h3', {}, a.name),
-      el('div', { class: 'assets' }, a.docs.map((d) => el('article', { class: 'card asset' },
+      el('div', { class: 'plans' }, a.docs.map((d) => el('article', { class: 'card plan' },
         el('button', { class: 'thumb', 'aria-label': `${d.title}の中身を見る`, onclick: () => openViewer(d.id) },
           el('img', { src: d.pages[0], alt: `${d.title}の1ページ目`, loading: 'lazy' })),
         el('div', { class: 'body' },
