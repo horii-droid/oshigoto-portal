@@ -129,6 +129,11 @@
   .topics li span { font-size: 12.5px; color: var(--ink-mid); }
   .topics li span::before { content: "誌面づくり："; font-weight: 700; color: var(--green); }
 
+  /* 素材 */
+  .assets { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
+  .asset .thumb { aspect-ratio: 210 / 297; background: #fff; }
+  .asset .thumb img { object-fit: contain; }
+
   footer { font-size: 12px; color: var(--ink-mid); border-top: 1px solid var(--line); padding-top: 14px; }
 
   /* ビューア */
@@ -194,6 +199,11 @@
       <button class="chip" id="t-book" data-target="book" aria-pressed="false">お仕事ブック（中2）</button>
     </div>
     <div class="list" id="list"></div>
+  </section>
+
+  <section class="trend" aria-labelledby="asset-h">
+    <h2 id="asset-h">素材 <small>提案書やチラシに貼れる画像データ</small></h2>
+    <div class="assets" id="assets"></div>
   </section>
 
   <section class="trend" aria-labelledby="visit-h">
@@ -344,6 +354,30 @@ const TRENDS = [
   },
 ];
 
+// 素材（表紙データなど。新しい素材はこの配列に1件足す）
+const ASSETS = [
+  {
+    id: 'cover-note-2027',
+    title: 'お仕事ノート 2027年度版 表紙',
+    target: 'note',
+    file: 'files/cover-note-2027.png',
+    filename: '2027年度版_お仕事ノート_表1.png',
+    pages: ['pages/cover-note-2027.jpg'], portrait: true,
+    spec: 'PNG ・ 3000×4236px',
+    updated: '2026-10-14',
+  },
+  {
+    id: 'cover-book-2027',
+    title: 'お仕事ブック 2027年度版 表紙',
+    target: 'book',
+    file: 'files/cover-book-2027.png',
+    filename: '2027年度版_お仕事ブック_表1.png',
+    pages: ['pages/cover-book-2027.jpg'], portrait: true,
+    spec: 'PNG ・ 2681×3792px',
+    updated: '2026-10-14',
+  },
+];
+
 const state = { scene: 'all', target: 'all' };
 const $ = (s) => document.querySelector(s);
 const listEl = $('#list');
@@ -420,6 +454,23 @@ function renderVisits() {
   syncDl();
 }
 
+function renderAssets() {
+  const box = $('#assets');
+  box.replaceChildren();
+  for (const a of ASSETS) {
+    box.append(el('article', { class: 'card asset' },
+      el('button', { class: 'thumb', 'aria-label': `${a.title}を大きく見る`, onclick: () => openViewer(a.id) },
+        el('img', { src: a.pages[0], alt: a.title, loading: 'lazy' })),
+      el('div', { class: 'body' },
+        el('div', { class: 'tags' }, el('span', { class: 'tag target' }, TARGETS[a.target])),
+        el('h3', {}, a.title),
+        el('div', { class: 'meta' }, `${a.spec} ・ 更新 ${a.updated.replaceAll('-', '/')}`),
+        el('div', { class: 'actions' },
+          el('button', { class: 'btn dl', onclick: () => download(a) }, 'ダウンロード')))));
+  }
+  syncDl();
+}
+
 function renderTrends() {
   const box = $('#issues');
   box.replaceChildren();
@@ -449,7 +500,7 @@ document.querySelectorAll('[data-open]').forEach((a) => a.addEventListener('clic
 const viewer = $('#viewer');
 let current = null;
 function openViewer(id) {
-  const d = DOCS.find((x) => x.id === id) || TRENDS.find((x) => x.id === id) || VISITS.find((x) => x.id === id);
+  const d = DOCS.find((x) => x.id === id) || TRENDS.find((x) => x.id === id) || VISITS.find((x) => x.id === id) || ASSETS.find((x) => x.id === id);
   if (!d) return;
   current = d;
   $('#v-title').textContent = d.title;
@@ -517,6 +568,7 @@ async function download(d) {
 
 render();
 renderVisits();
+renderAssets();
 renderTrends();
 (async () => {
   try { downloads = window.claude?.use ? await window.claude.use('downloads') : null; } catch { downloads = null; }
