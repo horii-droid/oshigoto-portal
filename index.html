@@ -463,7 +463,17 @@ const PREFS = [
       updated: '2026-10-14',
     }] },
   ] },
-  { id: 'aichi', name: '愛知', areas: [] },
+  { id: 'aichi', name: '愛知', areas: [
+    { name: '一宮市', docs: [{
+      id: 'plan-2027n-ichinomiya',
+      title: 'お仕事ノート 一宮市版 発行企画概要（2027年1月発行）',
+      target: 'note',
+      file: 'files/plan-2027n-ichinomiya.pdf',
+      filename: '【営業用企画書】2027N_一宮市版.pdf',
+      pages: ['pages/plan-2027n-ichinomiya-01.jpg', 'pages/plan-2027n-ichinomiya-02.jpg', 'pages/plan-2027n-ichinomiya-03.jpg', 'pages/plan-2027n-ichinomiya-04.jpg', 'pages/plan-2027n-ichinomiya-05.jpg', 'pages/plan-2027n-ichinomiya-06.jpg', 'pages/plan-2027n-ichinomiya-07.jpg', 'pages/plan-2027n-ichinomiya-08.jpg', 'pages/plan-2027n-ichinomiya-09.jpg', 'pages/plan-2027n-ichinomiya-10.jpg', 'pages/plan-2027n-ichinomiya-11.jpg', 'pages/plan-2027n-ichinomiya-12.jpg', 'pages/plan-2027n-ichinomiya-13.jpg', 'pages/plan-2027n-ichinomiya-14.jpg', 'pages/plan-2027n-ichinomiya-15.jpg', 'pages/plan-2027n-ichinomiya-16.jpg', 'pages/plan-2027n-ichinomiya-17.jpg', 'pages/plan-2027n-ichinomiya-18.jpg', 'pages/plan-2027n-ichinomiya-19.jpg'],
+      updated: '2026-10-14',
+    }] },
+  ] },
 ];
 const AREA_DOCS = PREFS.flatMap((p) => p.areas.flatMap((a) => a.docs));
 
