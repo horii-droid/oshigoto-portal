@@ -134,6 +134,18 @@
   .asset .thumb { aspect-ratio: 210 / 297; background: #fff; }
   .asset .thumb img { object-fit: contain; object-position: center; }
 
+  /* エリア別 企画書 */
+  .prefs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .pref { font: inherit; text-align: left; cursor: pointer; background: var(--surface); color: var(--ink); border: 1.5px solid var(--line); border-radius: 12px; padding: 16px 18px; display: grid; gap: 2px; }
+  .pref b { font-size: 20px; font-weight: 900; line-height: 1.3; }
+  .pref span { font-size: 12.5px; color: var(--ink-mid); font-variant-numeric: tabular-nums; }
+  .pref[aria-pressed="true"] { background: var(--chip-on); color: var(--chip-on-ink); border-color: var(--chip-on); }
+  .pref[aria-pressed="true"] span { color: inherit; opacity: .8; }
+  .pref:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+  .areas { display: grid; gap: 20px; }
+  .area { display: grid; gap: 10px; }
+  .area > h3 { margin: 0; font-size: 15px; padding-left: 10px; border-left: 4px solid var(--orange); }
+
   footer { font-size: 12px; color: var(--ink-mid); border-top: 1px solid var(--line); padding-top: 14px; }
 
   /* ビューア */
@@ -199,6 +211,12 @@
       <button class="chip" id="t-book" data-target="book" aria-pressed="false">お仕事ブック（中2）</button>
     </div>
     <div class="list" id="list"></div>
+  </section>
+
+  <section class="trend" aria-labelledby="area-h">
+    <h2 id="area-h">エリア別 企画書 <small>県を選ぶと、各エリアの企画書が見られます</small></h2>
+    <div class="prefs" role="group" aria-label="県を選ぶ" id="prefs"></div>
+    <div class="areas" id="areas"></div>
   </section>
 
   <section class="trend" aria-labelledby="asset-h">
@@ -418,7 +436,16 @@ const ASSETS = [
   },
 ];
 
-const state = { scene: 'all', target: 'all' };
+// エリア別 企画書（県ごとにエリアを足し、各エリアの docs に企画書を1件ずつ足す）
+// 例: { name: '一宮市', docs: [{ id: 'plan-ichinomiya-n', title: '…', target: 'note',
+//       file: 'files/….pdf', filename: '….pdf', pages: ['pages/…-01.jpg'], portrait: true, updated: '2026-10-14' }] }
+const PREFS = [
+  { id: 'shizuoka', name: '静岡', areas: [] },
+  { id: 'aichi', name: '愛知', areas: [] },
+];
+const AREA_DOCS = PREFS.flatMap((p) => p.areas.flatMap((a) => a.docs));
+
+const state = { scene: 'all', target: 'all', pref: 'shizuoka' };
 const $ = (s) => document.querySelector(s);
 const listEl = $('#list');
 const toast = $('#toast');
@@ -511,6 +538,41 @@ function renderAssets() {
   syncDl();
 }
 
+function renderAreas() {
+  const prefsEl = $('#prefs');
+  prefsEl.replaceChildren();
+  for (const p of PREFS) {
+    const n = p.areas.reduce((s, a) => s + a.docs.length, 0);
+    prefsEl.append(el('button', { class: 'pref', 'aria-pressed': String(state.pref === p.id),
+      onclick: () => { state.pref = p.id; renderAreas(); } },
+      el('b', {}, p.name), el('span', {}, n ? `${p.areas.length}エリア ・ 企画書${n}点` : '準備中')));
+  }
+  const box = $('#areas');
+  box.replaceChildren();
+  const pref = PREFS.find((p) => p.id === state.pref);
+  if (!pref.areas.length) {
+    box.append(el('div', { class: 'placeholder' },
+      el('b', {}, `${pref.name}の企画書は準備中です`),
+      el('span', {}, 'エリアごとの企画書を、ここに順次追加していきます。')));
+    return;
+  }
+  for (const a of pref.areas) {
+    box.append(el('div', { class: 'area' },
+      el('h3', {}, a.name),
+      el('div', { class: 'assets' }, a.docs.map((d) => el('article', { class: 'card asset' },
+        el('button', { class: 'thumb', 'aria-label': `${d.title}の中身を見る`, onclick: () => openViewer(d.id) },
+          el('img', { src: d.pages[0], alt: `${d.title}の1ページ目`, loading: 'lazy' })),
+        el('div', { class: 'body' },
+          el('div', { class: 'tags' }, el('span', { class: 'tag target' }, TARGETS[d.target])),
+          el('h3', {}, d.title),
+          el('div', { class: 'meta' }, `PDF ・ ${d.pages.length}ページ ・ 更新 ${d.updated.replaceAll('-', '/')}`),
+          el('div', { class: 'actions' },
+            el('button', { class: 'btn ghost', onclick: () => openViewer(d.id) }, '中身を見る'),
+            el('button', { class: 'btn dl', onclick: () => download(d) }, 'ダウンロード'))))))));
+  }
+  syncDl();
+}
+
 function renderTrends() {
   const box = $('#issues');
   box.replaceChildren();
@@ -540,7 +602,7 @@ document.querySelectorAll('[data-open]').forEach((a) => a.addEventListener('clic
 const viewer = $('#viewer');
 let current = null;
 function openViewer(id) {
-  const d = DOCS.find((x) => x.id === id) || TRENDS.find((x) => x.id === id) || VISITS.find((x) => x.id === id) || ASSETS.find((x) => x.id === id);
+  const d = DOCS.find((x) => x.id === id) || TRENDS.find((x) => x.id === id) || VISITS.find((x) => x.id === id) || ASSETS.find((x) => x.id === id) || AREA_DOCS.find((x) => x.id === id);
   if (!d) return;
   current = d;
   $('#v-title').textContent = d.title;
@@ -609,6 +671,7 @@ async function download(d) {
 render();
 renderVisits();
 renderAssets();
+renderAreas();
 renderTrends();
 (async () => {
   try { downloads = window.claude?.use ? await window.claude.use('downloads') : null; } catch { downloads = null; }
