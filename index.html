@@ -148,6 +148,9 @@
   .plans { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
   .plan .thumb { aspect-ratio: 297 / 210; background: #fff; }
   .plan .thumb img { object-fit: contain; object-position: center; }
+  .scheds-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
+  .sched .thumb { aspect-ratio: 210 / 297; background: #fff; }
+  .sched .thumb img { object-fit: contain; object-position: center; }
 
   footer { font-size: 12px; color: var(--ink-mid); border-top: 1px solid var(--line); padding-top: 14px; }
 
@@ -220,6 +223,12 @@
     <h2 id="area-h">エリア別 企画書 <small>県を選ぶと、各エリアの企画書が見られます</small></h2>
     <div class="prefs" role="group" aria-label="県を選ぶ" id="prefs"></div>
     <div class="areas" id="areas"></div>
+  </section>
+
+  <section class="trend" aria-labelledby="sched-h">
+    <h2 id="sched-h">制作スケジュール <small>県を選ぶと、各版の制作スケジュール（SKD）が見られます</small></h2>
+    <div class="prefs" role="group" aria-label="県を選ぶ" id="sched-prefs"></div>
+    <div class="areas" id="scheds"></div>
   </section>
 
   <section class="trend" aria-labelledby="asset-h">
@@ -505,7 +514,25 @@ const PREFS = [
 ];
 const AREA_DOCS = PREFS.flatMap((p) => p.areas.flatMap((a) => a.docs));
 
-const state = { scene: 'all', target: 'all', pref: 'shizuoka' };
+// 制作スケジュール（県ごとにエリアを足し、各エリアの docs にスケジュールを1件ずつ足す。形はエリア別企画書と同じ）
+const SCHED_PREFS = [
+  { id: 'aichi', name: '愛知', areas: [
+    { name: '一宮市', docs: [{
+      id: 'schedule-2027n-ichinomiya',
+      title: 'お仕事ノート 一宮市版 制作スケジュール（2027年1月発行）',
+      target: 'note',
+      file: 'files/schedule-2027n-ichinomiya.pdf',
+      filename: '2701N_一宮市版_制作スケジュール.pdf',
+      pages: ['pages/schedule-2027n-ichinomiya-01.jpg'], portrait: true,
+      points: ['12/10 枠〆', '12/18 初稿入稿〆切（掲載確定先）', '1/5〜1/7 見本誌作成・校正・修正', '1/8 読み合わせ ／ 1/12 データアップ'],
+      updated: '2026-10-19',
+    }] },
+  ] },
+  { id: 'shizuoka', name: '静岡', areas: [] },
+];
+const SCHED_DOCS = SCHED_PREFS.flatMap((p) => p.areas.flatMap((a) => a.docs));
+
+const state = { scene: 'all', target: 'all', pref: 'shizuoka', schedPref: 'aichi' };
 const $ = (s) => document.querySelector(s);
 const listEl = $('#list');
 const toast = $('#toast');
@@ -633,6 +660,42 @@ function renderAreas() {
   syncDl();
 }
 
+function renderScheds() {
+  const prefsEl = $('#sched-prefs');
+  prefsEl.replaceChildren();
+  for (const p of SCHED_PREFS) {
+    const n = p.areas.reduce((s, a) => s + a.docs.length, 0);
+    prefsEl.append(el('button', { class: 'pref', 'aria-pressed': String(state.schedPref === p.id),
+      onclick: () => { state.schedPref = p.id; renderScheds(); } },
+      el('b', {}, p.name), el('span', {}, n ? `${p.areas.length}エリア ・ スケジュール${n}点` : '準備中')));
+  }
+  const box = $('#scheds');
+  box.replaceChildren();
+  const pref = SCHED_PREFS.find((p) => p.id === state.schedPref);
+  if (!pref.areas.length) {
+    box.append(el('div', { class: 'placeholder' },
+      el('b', {}, `${pref.name}の制作スケジュールは準備中です`),
+      el('span', {}, '版ごとの制作スケジュールを、ここに順次追加していきます。')));
+    return;
+  }
+  for (const a of pref.areas) {
+    box.append(el('div', { class: 'area' },
+      el('h3', {}, a.name),
+      el('div', { class: 'scheds-list' }, a.docs.map((d) => el('article', { class: 'card sched' },
+        el('button', { class: 'thumb', 'aria-label': `${d.title}を見る`, onclick: () => openViewer(d.id) },
+          el('img', { src: d.pages[0], alt: `${d.title}`, loading: 'lazy' })),
+        el('div', { class: 'body' },
+          el('div', { class: 'tags' }, el('span', { class: 'tag target' }, TARGETS[d.target])),
+          el('h3', {}, d.title),
+          d.points ? el('ul', { class: 'points' }, d.points.map((p) => el('li', {}, p))) : null,
+          el('div', { class: 'meta' }, `PDF ・ ${d.pages.length}ページ ・ 更新 ${d.updated.replaceAll('-', '/')}`),
+          el('div', { class: 'actions' },
+            el('button', { class: 'btn ghost', onclick: () => openViewer(d.id) }, '中身を見る'),
+            el('button', { class: 'btn dl', onclick: () => download(d) }, 'ダウンロード'))))))));
+  }
+  syncDl();
+}
+
 function renderTrends() {
   const box = $('#issues');
   box.replaceChildren();
@@ -662,7 +725,7 @@ document.querySelectorAll('[data-open]').forEach((a) => a.addEventListener('clic
 const viewer = $('#viewer');
 let current = null;
 function openViewer(id) {
-  const d = DOCS.find((x) => x.id === id) || TRENDS.find((x) => x.id === id) || VISITS.find((x) => x.id === id) || ASSETS.find((x) => x.id === id) || AREA_DOCS.find((x) => x.id === id);
+  const d = DOCS.find((x) => x.id === id) || TRENDS.find((x) => x.id === id) || VISITS.find((x) => x.id === id) || ASSETS.find((x) => x.id === id) || AREA_DOCS.find((x) => x.id === id) || SCHED_DOCS.find((x) => x.id === id);
   if (!d) return;
   current = d;
   $('#v-title').textContent = d.title;
@@ -732,6 +795,7 @@ render();
 renderVisits();
 renderAssets();
 renderAreas();
+renderScheds();
 renderTrends();
 (async () => {
   try { downloads = window.claude?.use ? await window.claude.use('downloads') : null; } catch { downloads = null; }
