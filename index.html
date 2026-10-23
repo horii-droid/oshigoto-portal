@@ -572,7 +572,37 @@ const SCHED_PREFS = [
       updated: '2026-10-19',
     }] },
   ] },
-  { id: 'shizuoka', name: '静岡', areas: [] },
+  { id: 'shizuoka', name: '静岡', areas: [
+    { name: '静岡市', docs: [{
+      id: 'schedule-2026n-shizuoka',
+      title: 'お仕事ノート 静岡市版 制作スケジュール（2026年12月発行）',
+      target: 'note',
+      file: 'files/schedule-2026n-shizuoka.pdf',
+      filename: '2612N_静岡市版_制作スケジュール.pdf',
+      pages: ['pages/schedule-2026n-shizuoka-01.jpg'], portrait: true,
+      points: ['11/16 枠〆', '11/25 初稿入稿〆切（掲載確定先）', '12/7〜12/9 見本誌作成・校正・修正', '12/10 読み合わせ ／ 12/11 データアップ'],
+      updated: '2026-10-23',
+    }, {
+      id: 'schedule-2026b-shizuoka',
+      title: 'お仕事ブック 静岡市版 制作スケジュール（2026年12月発行）',
+      target: 'book',
+      file: 'files/schedule-2026b-shizuoka.pdf',
+      filename: '2612B_静岡市版_制作スケジュール.pdf',
+      pages: ['pages/schedule-2026b-shizuoka-01.jpg'], portrait: true,
+      points: ['11/16 枠〆', '11/25 初稿入稿〆切（掲載確定先）', '12/7〜12/9 見本誌作成・校正・修正', '12/10 読み合わせ ／ 12/11 データアップ'],
+      updated: '2026-10-23',
+    }] },
+    { name: '伊豆市・伊豆の国市・函南町・熱海市・伊東市', docs: [{
+      id: 'schedule-2027n-izu-atami-ito',
+      title: 'お仕事ノート 伊豆市・伊豆の国市・函南町・熱海市・伊東市版 制作スケジュール（2027年1月発行）',
+      target: 'note',
+      file: 'files/schedule-2027n-izu-atami-ito.pdf',
+      filename: '2701N_伊豆市・伊豆の国市・函南町・熱海市・伊東市版_制作スケジュール.pdf',
+      pages: ['pages/schedule-2027n-izu-atami-ito-01.jpg'], portrait: true,
+      points: ['12/18 枠〆', '1/4 初稿入稿〆切（掲載確定先）', '1/14〜1/18 見本誌作成・校正・修正', '1/19 読み合わせ ／ 1/20 データアップ'],
+      updated: '2026-10-23',
+    }] },
+  ] },
 ];
 const SCHED_DOCS = SCHED_PREFS.flatMap((p) => p.areas.flatMap((a) => a.docs));
 
