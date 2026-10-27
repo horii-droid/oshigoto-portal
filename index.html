@@ -130,6 +130,9 @@
   .topics li span::before { content: "誌面づくり："; font-weight: 700; color: var(--green); }
 
   /* 素材 */
+  .bn { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 18px; padding: 16px 18px; border: 1px solid var(--line, rgba(127,127,127,.3)); border-radius: 12px; }
+  .bn p { margin: 0; font-size: 13px; color: var(--ink-mid); max-width: 70ch; }
+  .bn a.btn { text-decoration: none; white-space: nowrap; }
   .assets { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
   .asset .thumb { aspect-ratio: 210 / 297; background: #fff; }
   .asset .thumb img { object-fit: contain; object-position: center; }
@@ -234,6 +237,14 @@
   <section class="trend" aria-labelledby="asset-h">
     <h2 id="asset-h">素材 <small>提案書やチラシに貼れる画像・PDFデータ</small></h2>
     <div class="assets" id="assets"></div>
+  </section>
+
+  <section class="trend" aria-labelledby="bn-h">
+    <h2 id="bn-h">バックナンバー <small>過去に発行した各版の紙面データ</small></h2>
+    <div class="bn">
+      <p>エリア・年度ごとのフォルダに、過去の紙面が入っています（Google ドライブが開きます）。掲載企業の確認や、誌面イメージを見せたいときにどうぞ。</p>
+      <a class="btn" href="https://drive.google.com/drive/folders/1Cb-crxHpMGAAizygcbXvjgsB6DRRubdz" target="_blank" rel="noopener">バックナンバーを開く</a>
+    </div>
   </section>
 
   <section class="trend" aria-labelledby="visit-h">
