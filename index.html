@@ -249,9 +249,9 @@
   </section>
 
   <section class="trend" aria-labelledby="db-h">
-    <h2 id="db-h">デジタルブックはこちらから <small>スマホ・PCでそのまま読める各版のデジタルブック（愛知県）</small></h2>
+    <h2 id="db-h">デジタルブックはこちらから <small>スマホ・PCでそのまま読める各版のデジタルブック（愛知県・静岡県）</small></h2>
     <p class="tnote">協賛社に「実際の誌面」を見せたいときに、リンクをそのまま送れます。ボタンを押すと新しいタブで開きます。</p>
-    <div class="dbooks" id="dbooks"></div>
+    <div class="areas" id="dbooks"></div>
   </section>
 
   <section class="trend" aria-labelledby="bn-h">
@@ -674,15 +674,32 @@ const SCHED_PREFS = [
 ];
 const SCHED_DOCS = SCHED_PREFS.flatMap((p) => p.areas.flatMap((a) => a.docs));
 
-// デジタルブック（愛知県）。新しい版を先頭に。code は発行年月（yymm）
-const DBOOK_BASE = 'https://www.k-create.co.jp/dbook/oshigotonote/';
+// デジタルブック。県ごと・新しい版を先頭に。editions は [パス or URL, 表示名]（表示名を省くと先頭4桁 yymm から「20yy年m月発行」）
+const DBOOK_BASE = 'https://www.k-create.co.jp/dbook/';
 const DBOOKS = [
-  { area: '北名古屋市', editions: ['2610kitanagoya'] },
-  { area: '江南市', editions: ['2609konan', '2509konan'] },
-  { area: '清須市', editions: ['2608kiyosu', '2502kiyosu'] },
-  { area: '稲沢市', editions: ['2505inazawa'] },
-  { area: '岩倉市', editions: ['2503iwakura'] },
-  { area: '弥富市・愛西市', editions: ['2502yatomi'] },
+  { pref: '愛知県', books: [
+    { area: '北名古屋市', target: 'note', editions: [['oshigotonote/2610kitanagoya']] },
+    { area: '江南市', target: 'note', editions: [['oshigotonote/2609konan'], ['oshigotonote/2509konan']] },
+    { area: '清須市', target: 'note', editions: [['oshigotonote/2608kiyosu'], ['oshigotonote/2502kiyosu']] },
+    { area: '稲沢市', target: 'note', editions: [['oshigotonote/2505inazawa']] },
+    { area: '岩倉市', target: 'note', editions: [['oshigotonote/2503iwakura']] },
+    { area: '弥富市・愛西市', target: 'note', editions: [['oshigotonote/2502yatomi']] },
+  ] },
+  { pref: '静岡県', books: [
+    { area: '沼津市・三島市・長泉町・清水町', target: 'note', editions: [['oshigotonote/2609numazu_mishima_nagaizumi_shimizu'], ['oshigotonote/2509numadu', '沼津市 2025年9月'], ['oshigotonote/2502mishima', '三島市 2025年2月']] },
+    { area: '富士市', target: 'note', editions: [['oshigotonote/2608fuji'], ['oshigotonote/2508fuji']] },
+    { area: '浜松市・湖西市', target: 'note', editions: [['oshigotonote/2607hamamatsu_kosai'], ['oshigotonote/2507hamamatsu', '浜松市 2025年7月']] },
+    { area: '藤枝市', target: 'note', editions: [['oshigotonote/2606fujieda']] },
+    { area: '牧之原市・吉田町', target: 'note', editions: [['oshigotonote/2606makinohara_yoshida'], ['oshigotonote/2505makinohara', '牧之原市 2025年5月']] },
+    { area: '島田市', target: 'note', editions: [['oshigotonote/2605shimada'], ['oshigotonote/2506shimada']] },
+    { area: '磐田市', target: 'note', editions: [['oshigotonote/iwata202603', '2026年3月発行'], ['oshigotonote/2503iwata']] },
+    { area: '富士宮市', target: 'note', editions: [['oshigotonote/2602fujinomiya'], ['oshigotonote/2025fujimino', '2025年度']] },
+    { area: '掛川市', target: 'note', editions: [['oshigotonote/2504kakegawa']] },
+    { area: '菊川市', target: 'note', editions: [['oshigotonote/2504kikukawa']] },
+    { area: '富士市・富士宮市', target: 'book', editions: [['oshigotobook/2026fuji_fujinomiya', '2026年度版']] },
+    { area: '浜松市', target: 'book', editions: [['oshigotobook/2026hamamatsu', '2026年度版']] },
+    { area: '静岡市', target: 'book', editions: [['https://kureyon.meclib.jp/library/books/2026_book_shizuoka/book/index.html', '2026年度版']] },
+  ] },
 ];
 
 const state = { scene: 'all', target: 'all', pref: 'shizuoka', schedPref: 'aichi' };
@@ -781,16 +798,25 @@ function renderAssets() {
 function renderDbooks() {
   const box = $('#dbooks');
   box.replaceChildren();
-  const ed = (c) => `20${c.slice(0, 2)}年${Number(c.slice(2, 4))}月発行`;
-  for (const b of DBOOKS) {
-    const [latest, ...olds] = b.editions;
-    box.append(el('article', { class: 'dbook' },
-      el('div', { class: 'tags' }, el('span', { class: 'tag target' }, TARGETS.note)),
-      el('h3', {}, `${b.area}版`),
-      el('div', { class: 'ed' }, ed(latest)),
-      el('a', { class: 'btn', href: `${DBOOK_BASE}${latest}/`, target: '_blank', rel: 'noopener' }, 'デジタルブックを開く'),
-      olds.length ? el('div', { class: 'old' }, '前の版：', olds.map((c) =>
-        el('a', { href: `${DBOOK_BASE}${c}/`, target: '_blank', rel: 'noopener' }, ed(c)))) : null));
+  const url = ([p]) => (p.startsWith('http') ? p : `${DBOOK_BASE}${p}/`);
+  const label = ([p, l]) => {
+    if (l) return l;
+    const c = p.split('/').pop();
+    return `20${c.slice(0, 2)}年${Number(c.slice(2, 4))}月発行`;
+  };
+  for (const g of DBOOKS) {
+    box.append(el('div', { class: 'area' },
+      el('h3', {}, `${g.pref}（${g.books.length}版）`),
+      el('div', { class: 'dbooks' }, g.books.map((b) => {
+        const [latest, ...olds] = b.editions;
+        return el('article', { class: 'dbook' },
+          el('div', { class: 'tags' }, el('span', { class: 'tag target' }, TARGETS[b.target])),
+          el('h3', {}, `${b.area}版`),
+          el('div', { class: 'ed' }, label(latest)),
+          el('a', { class: 'btn', href: url(latest), target: '_blank', rel: 'noopener' }, 'デジタルブックを開く'),
+          olds.length ? el('div', { class: 'old' }, '前の版：', olds.map((e) =>
+            el('a', { href: url(e), target: '_blank', rel: 'noopener' }, label(e)))) : null);
+      }))));
   }
 }
 
