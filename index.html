@@ -137,6 +137,14 @@
   .asset .thumb { aspect-ratio: 210 / 297; background: #fff; }
   .asset .thumb img { object-fit: contain; object-position: center; }
 
+  /* 他エリアの掲載事例 */
+  .cases { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+  .case .thumb { aspect-ratio: 1400 / 988; background: #fff; }
+  .case .thumb img { object-fit: contain; object-position: center; }
+  .case .co { font-size: 13px; color: var(--ink-mid); }
+  .case .pt { margin: 0; font-size: 13px; background: var(--bg); border-radius: 6px; padding: 8px 10px; }
+  .case .pt::before { content: "見どころ："; font-weight: 700; }
+
   /* デジタルブック */
   .dbooks { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
   .dbook { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: grid; gap: 8px; align-content: start; }
@@ -252,6 +260,13 @@
     <h2 id="db-h">デジタルブックはこちらから <small>スマホ・PCでそのまま読める各版のデジタルブック（愛知県・静岡県）</small></h2>
     <p class="tnote">協賛社に「実際の誌面」を見せたいときに、リンクをそのまま送れます。ボタンを押すと新しいタブで開きます。</p>
     <div class="areas" id="dbooks"></div>
+  </section>
+
+  <section class="trend" aria-labelledby="case-h">
+    <h2 id="case-h">他エリアの掲載事例 <small>中広グループの各版に載った企業の誌面（同じ業種の会社に提案するときの見本に）</small></h2>
+    <p class="tnote">中広に問い合わせていただいた掲載事例をためていく場所です。問い合わせる前に、まずここに同じ業種の事例がないか確認してください。新しい事例が手に入ったら、堀井までお送りください。</p>
+    <div class="frow" role="group" aria-label="業種で絞り込み" id="case-inds"></div>
+    <div class="cases" id="cases"></div>
   </section>
 
   <section class="trend" aria-labelledby="bn-h">
@@ -675,6 +690,32 @@ const SCHED_PREFS = [
 const SCHED_DOCS = SCHED_PREFS.flatMap((p) => p.areas.flatMap((a) => a.docs));
 
 // デジタルブック。県ごと・新しい版を先頭に。editions は [パス or URL, 表示名]（表示名を省くと先頭4桁 yymm から「20yy年m月発行」）
+// 他エリアの掲載事例（中広に問い合わせて入手したもの。新しい事例はこの配列に1件足す）
+const CASES = [
+  {
+    id: 'case-kurukuru-naruto-2025',
+    industry: '施設運営',
+    title: '道の駅 くるくる なると（株式会社シンカ）',
+    edition: '徳島市・鳴門市・板野郡版', year: '2025年度', target: 'note',
+    point: '道の駅の仕事を「販売・品出し」「調理」「オンラインショップ」「イベント企画」「商品開発」「環境整備」の6つに分けて紹介。地元特産品を使ったオリジナル商品も写真で見せている',
+    file: 'files/case-kurukuru-naruto-2025.pdf',
+    filename: '【施設運営】道の駅くるくるなると（株式会社シンカ）_徳島市・鳴門市・板野郡版2025.pdf',
+    pages: ['pages/case-kurukuru-naruto-2025-01.jpg'], portrait: false,
+    added: '2026-11-05',
+  },
+  {
+    id: 'case-hokusetsu-sanda-2025',
+    industry: '商業施設運営',
+    title: '株式会社北摂コミュニティ開発センター',
+    edition: '三田市版', year: '2025年度', target: 'note',
+    point: '「看板をあげているお店の建物を貸している“誰か”」という切り口で、子どもに見えにくい商業施設運営の仕事を説明。運営する施設4つと、入退店調整・イベント・安全管理・地域連携の仕事を紹介',
+    file: 'files/case-hokusetsu-sanda-2025.pdf',
+    filename: '【商業施設運営】株式会社北摂コミュニティ開発センター_三田市版2025.pdf',
+    pages: ['pages/case-hokusetsu-sanda-2025-01.jpg'], portrait: false,
+    added: '2026-11-05',
+  },
+];
+
 const DBOOK_BASE = 'https://www.k-create.co.jp/dbook/';
 const DBOOKS = [
   { pref: '愛知県', books: [
@@ -791,6 +832,31 @@ function renderAssets() {
         el('div', { class: 'meta' }, `${a.spec} ・ 更新 ${a.updated.replaceAll('-', '/')}`),
         el('div', { class: 'actions' },
           el('button', { class: 'btn dl', onclick: () => download(a) }, 'ダウンロード')))));
+  }
+  syncDl();
+}
+
+let caseInd = 'all';
+function renderCases() {
+  const inds = [...new Set(CASES.map((c) => c.industry))];
+  const bar = $('#case-inds');
+  bar.replaceChildren(el('span', { class: 'flabel' }, '業種'),
+    ...['all', ...inds].map((v) => el('button', { class: 'chip', 'aria-pressed': String(caseInd === v), onclick: () => { caseInd = v; renderCases(); } },
+      v === 'all' ? `すべて（${CASES.length}）` : v)));
+  const box = $('#cases');
+  box.replaceChildren();
+  for (const c of CASES.filter((x) => caseInd === 'all' || x.industry === caseInd)) {
+    box.append(el('article', { class: 'card case' },
+      el('button', { class: 'thumb', 'aria-label': `${c.title}の誌面を大きく見る`, onclick: () => openViewer(c.id) },
+        el('img', { src: c.pages[0], alt: `${c.title}の誌面`, loading: 'lazy' })),
+      el('div', { class: 'body' },
+        el('div', { class: 'tags' }, el('span', { class: 'tag scene', style: '--c: var(--orange)' }, c.industry), el('span', { class: 'tag target' }, TARGETS[c.target])),
+        el('h3', {}, c.title),
+        el('div', { class: 'co' }, `${c.edition}（${c.year}）`),
+        c.point ? el('p', { class: 'pt' }, c.point) : null,
+        el('div', { class: 'actions' },
+          el('button', { class: 'btn ghost', onclick: () => openViewer(c.id) }, '誌面を見る'),
+          el('button', { class: 'btn dl', onclick: () => download(c) }, 'ダウンロード')))));
   }
   syncDl();
 }
@@ -920,7 +986,7 @@ document.querySelectorAll('[data-open]').forEach((a) => a.addEventListener('clic
 const viewer = $('#viewer');
 let current = null;
 function openViewer(id) {
-  const d = DOCS.find((x) => x.id === id) || TRENDS.find((x) => x.id === id) || VISITS.find((x) => x.id === id) || ASSETS.find((x) => x.id === id) || AREA_DOCS.find((x) => x.id === id) || SCHED_DOCS.find((x) => x.id === id);
+  const d = DOCS.find((x) => x.id === id) || TRENDS.find((x) => x.id === id) || VISITS.find((x) => x.id === id) || ASSETS.find((x) => x.id === id) || AREA_DOCS.find((x) => x.id === id) || SCHED_DOCS.find((x) => x.id === id) || CASES.find((x) => x.id === id);
   if (!d) return;
   current = d;
   $('#v-title').textContent = d.title;
@@ -990,6 +1056,7 @@ render();
 renderVisits();
 renderAssets();
 renderDbooks();
+renderCases();
 renderAreas();
 renderScheds();
 renderTrends();
