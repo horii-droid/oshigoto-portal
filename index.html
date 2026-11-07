@@ -121,6 +121,9 @@
   .issue .date { font-variant-numeric: tabular-nums; display: grid; align-content: start; gap: 2px; }
   .issue .date b { font-size: 20px; font-weight: 900; line-height: 1.2; }
   .issue .date span { font-size: 12px; color: var(--ink-mid); }
+  /* NEW（掲載・更新から7日間） */
+  .thumb[data-new="true"]::after { content: "NEW"; position: absolute; right: 10px; top: 10px; font-size: 11px; font-weight: 900; letter-spacing: .1em; color: #fff; background: var(--pink); padding: 2px 8px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+  .newb { display: inline-block; vertical-align: middle; margin-left: 8px; font-size: 10px; font-weight: 900; font-style: normal; letter-spacing: .1em; color: #fff; background: var(--pink); padding: 1px 6px; border-radius: 4px; line-height: 1.5; }
   .issue .new { justify-self: start; font-size: 10px; font-weight: 700; letter-spacing: .08em; color: #fff; background: var(--pink); border-radius: 4px; padding: 0 6px; margin-top: 4px; }
   .issue .main { display: grid; gap: 8px; min-width: 0; }
   .issue h3 { margin: 0; font-size: 15px; }
@@ -861,6 +864,15 @@ function el(tag, attrs = {}, ...kids) {
   return n;
 }
 
+// 掲載・更新から7日間は NEW を付ける（added / updated / date のどれかで判定）
+const NEW_DAYS = 7;
+function isNew(x) {
+  const d = x && (x.added || x.updated || x.date);
+  if (!d) return false;
+  return (Date.now() - new Date(d + 'T00:00:00').getTime()) / 864e5 < NEW_DAYS;
+}
+const newb = (on) => (on ? el('i', { class: 'newb' }, 'NEW') : null);
+
 function render() {
   const items = DOCS.filter((d) =>
     (state.scene === 'all' || d.scene === state.scene) &&
@@ -877,7 +889,7 @@ function render() {
       ? el('img', { src: d.pages[0], alt: `${d.title}の1ページ目`, loading: 'lazy' })
       : el('div', { class: 'pptx-cover' }, el('b', {}, d.title), el('span', {}, `スライド${d.pagesLabel}・要点を表示`));
     listEl.append(el('article', { class: 'card', style: `--c: ${sc.color}` },
-      el('button', { class: 'thumb', 'aria-label': `${d.title}の中身を見る`, onclick: () => openViewer(d.id) },
+      el('button', { class: 'thumb', 'data-new': String(isNew(d)), 'aria-label': `${d.title}の中身を見る`, onclick: () => openViewer(d.id) },
         thumbInner, el('span', { class: 'fmt' }, d.format)),
       el('div', { class: 'body' },
         el('div', { class: 'tags' },
@@ -907,7 +919,7 @@ function renderVisits() {
   VISITS.forEach((v, i) => {
     const [y, m, d] = v.date.split('-');
     box.append(el('article', { class: 'issue visit' },
-      el('div', { class: 'date' }, el('b', {}, `${Number(m)}/${Number(d)}`), el('span', {}, `${y}年`), i === 0 ? el('span', { class: 'new' }, '最新') : null),
+      el('div', { class: 'date' }, el('b', {}, `${Number(m)}/${Number(d)}`), el('span', {}, `${y}年`), i === 0 ? el('span', { class: 'new' }, '最新') : (isNew(v) ? el('span', { class: 'new' }, 'NEW') : null)),
       el('div', { class: 'main' },
         el('h3', {}, v.title),
         el('div', { class: 'school' }, [v.school, v.grade].filter(Boolean).join(' ・ ')),
@@ -924,7 +936,7 @@ function renderAssets() {
   box.replaceChildren();
   for (const a of ASSETS) {
     box.append(el('article', { class: 'card asset' },
-      el('button', { class: 'thumb', 'aria-label': `${a.title}を大きく見る`, onclick: () => openViewer(a.id) },
+      el('button', { class: 'thumb', 'data-new': String(isNew(a)), 'aria-label': `${a.title}を大きく見る`, onclick: () => openViewer(a.id) },
         el('img', { src: a.pages[0], alt: a.title, loading: 'lazy' })),
       el('div', { class: 'body' },
         el('div', { class: 'tags' }, el('span', { class: 'tag target' }, TARGETS[a.target])),
@@ -947,7 +959,7 @@ function renderCases() {
   box.replaceChildren();
   for (const c of CASES.filter((x) => caseInd === 'all' || x.industry === caseInd)) {
     box.append(el('article', { class: 'card case' },
-      el('button', { class: 'thumb', 'aria-label': `${c.title}の誌面を大きく見る`, onclick: () => openViewer(c.id) },
+      el('button', { class: 'thumb', 'data-new': String(isNew(c)), 'aria-label': `${c.title}の誌面を大きく見る`, onclick: () => openViewer(c.id) },
         el('img', { src: c.pages[0], alt: `${c.title}の誌面`, loading: 'lazy' })),
       el('div', { class: 'body' },
         el('div', { class: 'tags' }, el('span', { class: 'tag scene', style: '--c: var(--orange)' }, c.industry), el('span', { class: 'tag target' }, TARGETS[c.target])),
@@ -993,7 +1005,7 @@ function renderAreas() {
     const n = p.areas.reduce((s, a) => s + a.docs.length, 0);
     prefsEl.append(el('button', { class: 'pref', 'aria-pressed': String(state.pref === p.id),
       onclick: () => { state.pref = p.id; renderAreas(); } },
-      el('b', {}, p.name), el('span', {}, n ? `${p.areas.length}エリア ・ 企画書${n}点` : '準備中')));
+      el('b', {}, p.name, newb(p.areas.some((a) => a.docs.some(isNew)))), el('span', {}, n ? `${p.areas.length}エリア ・ 企画書${n}点` : '準備中')));
   }
   const box = $('#areas');
   box.replaceChildren();
@@ -1008,7 +1020,7 @@ function renderAreas() {
     box.append(el('div', { class: 'area' },
       el('h3', {}, a.name),
       el('div', { class: 'plans' }, a.docs.map((d) => el('article', { class: 'card plan' },
-        el('button', { class: 'thumb', 'aria-label': `${d.title}の中身を見る`, onclick: () => openViewer(d.id) },
+        el('button', { class: 'thumb', 'data-new': String(isNew(d)), 'aria-label': `${d.title}の中身を見る`, onclick: () => openViewer(d.id) },
           el('img', { src: d.pages[0], alt: `${d.title}の1ページ目`, loading: 'lazy' })),
         el('div', { class: 'body' },
           el('div', { class: 'tags' }, el('span', { class: 'tag target' }, TARGETS[d.target])),
@@ -1028,7 +1040,7 @@ function renderScheds() {
     const n = p.areas.reduce((s, a) => s + a.docs.length, 0);
     prefsEl.append(el('button', { class: 'pref', 'aria-pressed': String(state.schedPref === p.id),
       onclick: () => { state.schedPref = p.id; renderScheds(); } },
-      el('b', {}, p.name), el('span', {}, n ? `${p.areas.length}エリア ・ スケジュール${n}点` : '準備中')));
+      el('b', {}, p.name, newb(p.areas.some((a) => a.docs.some(isNew)))), el('span', {}, n ? `${p.areas.length}エリア ・ スケジュール${n}点` : '準備中')));
   }
   const box = $('#scheds');
   box.replaceChildren();
@@ -1043,7 +1055,7 @@ function renderScheds() {
     box.append(el('div', { class: 'area' },
       el('h3', {}, a.name),
       el('div', { class: 'scheds-list' }, a.docs.map((d) => el('article', { class: 'card sched' },
-        el('button', { class: 'thumb', 'aria-label': `${d.title}を見る`, onclick: () => openViewer(d.id) },
+        el('button', { class: 'thumb', 'data-new': String(isNew(d)), 'aria-label': `${d.title}を見る`, onclick: () => openViewer(d.id) },
           el('img', { src: d.pages[0], alt: `${d.title}`, loading: 'lazy' })),
         el('div', { class: 'body' },
           el('div', { class: 'tags' }, el('span', { class: 'tag target' }, TARGETS[d.target])),
@@ -1064,7 +1076,7 @@ function renderHearings() {
     const n = p.areas.reduce((s, a) => s + a.docs.length, 0);
     prefsEl.append(el('button', { class: 'pref', 'aria-pressed': String(state.hearPref === p.id),
       onclick: () => { state.hearPref = p.id; renderHearings(); } },
-      el('b', {}, p.name), el('span', {}, n ? `${p.areas.length}エリア ・ 資料${n}点` : '準備中')));
+      el('b', {}, p.name, newb(p.areas.some((a) => a.docs.some(isNew)))), el('span', {}, n ? `${p.areas.length}エリア ・ 資料${n}点` : '準備中')));
   }
   const box = $('#hears');
   box.replaceChildren();
@@ -1079,7 +1091,7 @@ function renderHearings() {
     box.append(el('div', { class: 'area' },
       el('h3', {}, a.name),
       el('div', { class: 'scheds-list' }, a.docs.map((d) => el('article', { class: 'card sched' },
-        el('button', { class: 'thumb', 'aria-label': `${d.title}を見る`, onclick: () => openViewer(d.id) },
+        el('button', { class: 'thumb', 'data-new': String(isNew(d)), 'aria-label': `${d.title}を見る`, onclick: () => openViewer(d.id) },
           el('img', { src: d.pages[0], alt: `${d.title}`, loading: 'lazy' })),
         el('div', { class: 'body' },
           el('div', { class: 'tags' }, el('span', { class: 'tag target' }, TARGETS[d.target])),
@@ -1099,7 +1111,7 @@ function renderTrends() {
   TRENDS.forEach((t, i) => {
     const [y, m, d] = t.date.split('-');
     box.append(el('article', { class: 'issue' },
-      el('div', { class: 'date' }, el('b', {}, `${Number(m)}/${Number(d)}`), el('span', {}, `${y}年`), i === 0 ? el('span', { class: 'new' }, '最新') : null),
+      el('div', { class: 'date' }, el('b', {}, `${Number(m)}/${Number(d)}`), el('span', {}, `${y}年`), i === 0 ? el('span', { class: 'new' }, '最新') : (isNew(t) ? el('span', { class: 'new' }, 'NEW') : null)),
       el('div', { class: 'main' },
         el('h3', {}, t.title),
         t.author ? el('div', { class: 'school' }, `まとめ：${t.author}`) : null,
