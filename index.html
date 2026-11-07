@@ -251,6 +251,13 @@
     <div class="areas" id="scheds"></div>
   </section>
 
+  <section class="trend" aria-labelledby="hear-h">
+    <h2 id="hear-h">学校ヒアリング結果 <small>県を選ぶと、各エリアの学校ヒアリング結果（お仕事ノート通信）が見られます</small></h2>
+    <p class="tnote">協賛社によく聞かれる「本当に使われているの？」「何の授業で？」に、そのエリアの学校の声で答える資料です。A4両面1枚なので、印刷して持参するか、PDFをそのままメールで送れます。</p>
+    <div class="prefs" role="group" aria-label="県を選ぶ" id="hear-prefs"></div>
+    <div class="areas" id="hears"></div>
+  </section>
+
   <section class="trend" aria-labelledby="asset-h">
     <h2 id="asset-h">素材 <small>提案書やチラシに貼れる画像・PDFデータ</small></h2>
     <div class="assets" id="assets"></div>
@@ -703,6 +710,85 @@ const SCHED_PREFS = [
 ];
 const SCHED_DOCS = SCHED_PREFS.flatMap((p) => p.areas.flatMap((a) => a.docs));
 
+// 学校ヒアリング結果（エリア別の「お仕事ノート通信」PDF。県ごとにエリアを足す。形は制作スケジュールと同じ）
+const HEARING_PREFS = [
+  { id: 'aichi', name: '愛知', areas: [
+    { name: '一宮市', docs: [{
+      id: 'hearing-2026-ichinomiya',
+      title: 'お仕事ノート通信 一宮市版（学校ヒアリング結果）',
+      target: 'note',
+      file: 'files/hearing-2026-ichinomiya.pdf',
+      filename: 'お仕事ノート通信_一宮市版_学校ヒアリング.pdf',
+      pages: ['pages/hearing-2026-ichinomiya-01.jpg', 'pages/hearing-2026-ichinomiya-02.jpg'], portrait: true,
+      points: ['配布42校のうち、お話を伺えた28校', '授業で使った 17校', '掲載企業へ出張授業を依頼、親子で職場体験に行った学校も'],
+      updated: '2026-11-07',
+    }] },
+    { name: '愛西市・弥富市・蟹江町', docs: [{
+      id: 'hearing-2026-aisai',
+      title: 'お仕事ノート通信 愛西市・弥富市・蟹江町版（学校ヒアリング結果）',
+      target: 'note',
+      file: 'files/hearing-2026-aisai.pdf',
+      filename: 'お仕事ノート通信_愛西市・弥富市・蟹江町版_学校ヒアリング.pdf',
+      pages: ['pages/hearing-2026-aisai-01.jpg', 'pages/hearing-2026-aisai-02.jpg'], portrait: true,
+      points: ['配布25校のうち、お話を伺えた20校', '授業で使った 7校', '「両親の仕事はどこ？」地元の会社から外の社会を知る'],
+      updated: '2026-11-07',
+    }] },
+    { name: '岩倉市', docs: [{
+      id: 'hearing-2026-iwakura',
+      title: 'お仕事ノート通信 岩倉市版（学校ヒアリング結果）',
+      target: 'note',
+      file: 'files/hearing-2026-iwakura.pdf',
+      filename: 'お仕事ノート通信_岩倉市版_学校ヒアリング.pdf',
+      pages: ['pages/hearing-2026-iwakura-01.jpg', 'pages/hearing-2026-iwakura-02.jpg'], portrait: true,
+      points: ['配布5校のうち、お話を伺えた4校', '授業で使った 2校', '社会科見学の前に行き先の企業ページをみんなで'],
+      updated: '2026-11-07',
+    }] },
+  ] },
+  { id: 'shizuoka', name: '静岡', areas: [
+    { name: '磐田市', docs: [{
+      id: 'hearing-2026-iwata',
+      title: 'お仕事ノート通信 磐田市版（学校ヒアリング結果）',
+      target: 'note',
+      file: 'files/hearing-2026-iwata.pdf',
+      filename: 'お仕事ノート通信_磐田市版_学校ヒアリング.pdf',
+      pages: ['pages/hearing-2026-iwata-01.jpg', 'pages/hearing-2026-iwata-02.jpg'], portrait: true,
+      points: ['配布20校のうち、お話を伺えた11校', '授業で使った 6校', '保護者が載ったページに子どもたちが夢中6年生の「将来を考える授業」でも'],
+      updated: '2026-11-07',
+    }] },
+    { name: '富士宮市', docs: [{
+      id: 'hearing-2026-fujinomiya',
+      title: 'お仕事ノート通信 富士宮市版（学校ヒアリング結果）',
+      target: 'note',
+      file: 'files/hearing-2026-fujinomiya.pdf',
+      filename: 'お仕事ノート通信_富士宮市版_学校ヒアリング.pdf',
+      pages: ['pages/hearing-2026-fujinomiya-01.jpg', 'pages/hearing-2026-fujinomiya-02.jpg'], portrait: true,
+      points: ['配布21校のうち、お話を伺えた9校', '授業で使った 3校', '特産物のページから総合学習へ昨年度版を6年生が今も活用'],
+      updated: '2026-11-07',
+    }] },
+    { name: '菊川市', docs: [{
+      id: 'hearing-2026-kikugawa',
+      title: 'お仕事ノート通信 菊川市版（学校ヒアリング結果）',
+      target: 'note',
+      file: 'files/hearing-2026-kikugawa.pdf',
+      filename: 'お仕事ノート通信_菊川市版_学校ヒアリング.pdf',
+      pages: ['pages/hearing-2026-kikugawa-01.jpg', 'pages/hearing-2026-kikugawa-02.jpg'], portrait: true,
+      points: ['配布9校のうち、お話を伺えた7校', '授業で使った 2校', '「菊川市の自慢を探す」学習でお茶の魅力と工場で働く人の想いを'],
+      updated: '2026-11-07',
+    }] },
+    { name: '掛川市', docs: [{
+      id: 'hearing-2026-kakegawa',
+      title: 'お仕事ノート通信 掛川市版（学校ヒアリング結果）',
+      target: 'note',
+      file: 'files/hearing-2026-kakegawa.pdf',
+      filename: 'お仕事ノート通信_掛川市版_学校ヒアリング.pdf',
+      pages: ['pages/hearing-2026-kakegawa-01.jpg', 'pages/hearing-2026-kakegawa-02.jpg'], portrait: true,
+      points: ['配布21校のうち、お話を伺えた15校', '授業で使った 5校', '国語「しごとの工夫 見つけたよ」の教材に掛川市の学習の復習にも'],
+      updated: '2026-11-07',
+    }] },
+  ] },
+];
+const HEARING_DOCS = HEARING_PREFS.flatMap((p) => p.areas.flatMap((a) => a.docs));
+
 // デジタルブック。県ごと・新しい版を先頭に。editions は [パス or URL, 表示名]（表示名を省くと先頭4桁 yymm から「20yy年m月発行」）
 // 他エリアの掲載事例（中広に問い合わせて入手したもの。新しい事例はこの配列に1件足す）
 const CASES = [
@@ -757,7 +843,7 @@ const DBOOKS = [
   ] },
 ];
 
-const state = { scene: 'all', target: 'all', pref: 'shizuoka', schedPref: 'aichi' };
+const state = { scene: 'all', target: 'all', pref: 'shizuoka', schedPref: 'aichi', hearPref: 'aichi' };
 const $ = (s) => document.querySelector(s);
 const listEl = $('#list');
 const toast = $('#toast');
@@ -971,6 +1057,42 @@ function renderScheds() {
   syncDl();
 }
 
+function renderHearings() {
+  const prefsEl = $('#hear-prefs');
+  prefsEl.replaceChildren();
+  for (const p of HEARING_PREFS) {
+    const n = p.areas.reduce((s, a) => s + a.docs.length, 0);
+    prefsEl.append(el('button', { class: 'pref', 'aria-pressed': String(state.hearPref === p.id),
+      onclick: () => { state.hearPref = p.id; renderHearings(); } },
+      el('b', {}, p.name), el('span', {}, n ? `${p.areas.length}エリア ・ 資料${n}点` : '準備中')));
+  }
+  const box = $('#hears');
+  box.replaceChildren();
+  const pref = HEARING_PREFS.find((p) => p.id === state.hearPref);
+  if (!pref.areas.length) {
+    box.append(el('div', { class: 'placeholder' },
+      el('b', {}, `${pref.name}の学校ヒアリング結果は準備中です`),
+      el('span', {}, 'ヒアリングが終わったエリアから、順次追加していきます。')));
+    return;
+  }
+  for (const a of pref.areas) {
+    box.append(el('div', { class: 'area' },
+      el('h3', {}, a.name),
+      el('div', { class: 'scheds-list' }, a.docs.map((d) => el('article', { class: 'card sched' },
+        el('button', { class: 'thumb', 'aria-label': `${d.title}を見る`, onclick: () => openViewer(d.id) },
+          el('img', { src: d.pages[0], alt: `${d.title}`, loading: 'lazy' })),
+        el('div', { class: 'body' },
+          el('div', { class: 'tags' }, el('span', { class: 'tag target' }, TARGETS[d.target])),
+          el('h3', {}, d.title),
+          d.points ? el('ul', { class: 'points' }, d.points.map((p) => el('li', {}, p))) : null,
+          el('div', { class: 'meta' }, `PDF ・ ${d.pages.length}ページ ・ 更新 ${d.updated.replaceAll('-', '/')}`),
+          el('div', { class: 'actions' },
+            el('button', { class: 'btn ghost', onclick: () => openViewer(d.id) }, '中身を見る'),
+            el('button', { class: 'btn dl', onclick: () => download(d) }, 'ダウンロード'))))))));
+  }
+  syncDl();
+}
+
 function renderTrends() {
   const box = $('#issues');
   box.replaceChildren();
@@ -1000,7 +1122,7 @@ document.querySelectorAll('[data-open]').forEach((a) => a.addEventListener('clic
 const viewer = $('#viewer');
 let current = null;
 function openViewer(id) {
-  const d = DOCS.find((x) => x.id === id) || TRENDS.find((x) => x.id === id) || VISITS.find((x) => x.id === id) || ASSETS.find((x) => x.id === id) || AREA_DOCS.find((x) => x.id === id) || SCHED_DOCS.find((x) => x.id === id) || CASES.find((x) => x.id === id);
+  const d = DOCS.find((x) => x.id === id) || TRENDS.find((x) => x.id === id) || VISITS.find((x) => x.id === id) || ASSETS.find((x) => x.id === id) || AREA_DOCS.find((x) => x.id === id) || SCHED_DOCS.find((x) => x.id === id) || HEARING_DOCS.find((x) => x.id === id) || CASES.find((x) => x.id === id);
   if (!d) return;
   current = d;
   $('#v-title').textContent = d.title;
@@ -1073,6 +1195,7 @@ renderDbooks();
 renderCases();
 renderAreas();
 renderScheds();
+renderHearings();
 renderTrends();
 (async () => {
   try { downloads = window.claude?.use ? await window.claude.use('downloads') : null; } catch { downloads = null; }
