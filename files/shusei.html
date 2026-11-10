@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>修正指示の整理</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: 作業台。上に版元ラベル付きヘッダー、タブで5ツール切替、各ツールは「入力｜結果」の2カラム（スマホは縦積み） */
+:root{
+  --bg:#F3F5F4; --surface:#FFFFFF; --sunken:#E8ECEA; --ink:#1C2422; --muted:#5A6663; --rule:#D3DAD7;
+  --accent:#17616B; --accent-ink:#FFFFFF; --accent-soft:#DCEDEE;
+  --ng:#B3362B; --ng-soft:#F8E1DE; --warn:#8A6410; --warn-soft:#F6EBCD; --ok:#2E7550; --ok-soft:#DDEFE4;
+  --marker:#FFE97A;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#131918; --surface:#1B2321; --sunken:#111615; --ink:#E4EBE8; --muted:#9AA7A3; --rule:#2E3936;
+  --accent:#5FB7C2; --accent-ink:#0E1716; --accent-soft:#1D3437;
+  --ng:#EE8A7F; --ng-soft:#3A2220; --warn:#E5BE62; --warn-soft:#352B14; --ok:#7DCB9F; --ok-soft:#1A3326;
+  --marker:#5C5220; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#131918; --surface:#1B2321; --sunken:#111615; --ink:#E4EBE8; --muted:#9AA7A3; --rule:#2E3936;
+  --accent:#5FB7C2; --accent-ink:#0E1716; --accent-soft:#1D3437;
+  --ng:#EE8A7F; --ng-soft:#3A2220; --warn:#E5BE62; --warn-soft:#352B14; --ok:#7DCB9F; --ok-soft:#1A3326;
+  --marker:#5C5220; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.75;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 64px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 24px;padding-bottom:14px;border-bottom:2px solid var(--ink)}
+header.top h1{margin:0;font-size:1.55rem;font-weight:700;letter-spacing:.02em;text-wrap:balance}
+header.top .sub{margin:2px 0 0;color:var(--muted);font-size:.86rem}
+.beta{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;border:1.5px solid var(--accent);color:var(--accent);padding:2px 8px;border-radius:4px;vertical-align:middle;margin-left:8px}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;margin:14px 0 20px;padding-bottom:2px}
+nav.tabs a{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;text-decoration:none;color:var(--muted);font-weight:500;font-size:.92rem;border:1px solid transparent}
+nav.tabs a .k{font-family:var(--f-mono);font-size:.75rem;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--sunken);color:var(--muted)}
+nav.tabs a:hover{color:var(--ink)}
+nav.tabs a[aria-current="page"]{background:var(--surface);border-color:var(--rule);color:var(--ink)}
+nav.tabs a[aria-current="page"] .k{background:var(--accent);color:var(--accent-ink)}
+nav.tabs a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.panel-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:6px}
+.panel-head h2{margin:0;font-size:1.25rem}
+.lead{margin:0 0 18px;color:var(--muted);max-width:72ch;font-size:.92rem}
+.cols{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:20px;align-items:start}
+@media (max-width:860px){.cols{grid-template-columns:1fr}}
+.box{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:16px}
+.box h3{margin:0 0 10px;font-size:.95rem}
+label{display:block;font-size:.82rem;font-weight:700;color:var(--muted);margin:12px 0 4px}
+label:first-child{margin-top:0}
+input[type=text],input[type=date],select,textarea{width:100%;font:inherit;font-size:.92rem;color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:7px;padding:8px 10px}
+textarea{min-height:120px;resize:vertical;line-height:1.7}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+@media (max-width:480px){.row2{grid-template-columns:1fr}}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+button{font:inherit;cursor:pointer;border-radius:7px;font-size:.9rem}
+.btn{background:var(--accent);color:var(--accent-ink);border:none;padding:9px 18px;font-weight:700}
+.btn:disabled{opacity:.5;cursor:default}
+.btn2{background:transparent;color:var(--ink);border:1px solid var(--rule);padding:8px 14px}
+.btn2:hover{border-color:var(--muted)}
+.btn-s{padding:4px 10px;font-size:.8rem}
+.status{font-size:.82rem;color:var(--muted)}
+.note{font-size:.8rem;color:var(--muted);margin:10px 0 0}
+.empty{color:var(--muted);font-size:.9rem;padding:22px 8px;text-align:center;border:1.5px dashed var(--rule);border-radius:10px}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:.75rem;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.chip.ng{background:var(--ng-soft);color:var(--ng)} .chip.warn{background:var(--warn-soft);color:var(--warn)} .chip.ok{background:var(--ok-soft);color:var(--ok)} .chip.info{background:var(--accent-soft);color:var(--accent)}
+.sample-tag{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;color:var(--warn);background:var(--warn-soft);padding:2px 8px;border-radius:4px}
+/* draft output */
+.draft h4{margin:14px 0 4px;font-size:.78rem;color:var(--muted);letter-spacing:.06em}
+.draft .catch{font-size:1.3rem;font-weight:700;line-height:1.5;text-wrap:balance;margin:0}
+.draft p{margin:0}
+.draft .voice{border-left:3px solid var(--accent);padding:4px 0 4px 12px}
+.draft ul{margin:4px 0 0;padding-left:1.2em}
+/* findings */
+.findings{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.finding{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:start;padding:8px 10px;border-radius:8px;background:var(--sunken);font-size:.86rem}
+.finding b{font-weight:700}
+.finding .sug{color:var(--ok);font-weight:700}
+mark.ng{background:var(--ng-soft);color:var(--ng);text-decoration:underline wavy var(--ng);text-underline-offset:3px;border-radius:3px}
+mark.warn{background:var(--warn-soft);color:var(--warn);text-decoration:underline wavy var(--warn);text-underline-offset:3px;border-radius:3px}
+.hl{white-space:pre-wrap;background:var(--bg);border:1px solid var(--rule);border-radius:8px;padding:12px;font-size:.9rem;line-height:2}
+/* intake */
+.checklist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.checklist li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:8px 10px;border-radius:8px;background:var(--sunken);font-size:.88rem}
+.drop{border:1.5px dashed var(--rule);border-radius:8px;padding:14px;text-align:center;color:var(--muted);font-size:.85rem;cursor:pointer}
+.drop.over{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.drop input{display:none}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:10px}
+.thumb{border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--bg);font-size:.72rem}
+.thumb img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;max-width:100%}
+.thumb div{padding:4px 6px;font-family:var(--f-mono);line-height:1.4}
+pre.copy{white-space:pre-wrap;background:var(--bg);border:1px solid var(--rule);border-radius:8px;padding:12px;font-family:var(--f-body);font-size:.86rem;margin:8px 0 0}
+/* revise */
+.counter{display:flex;align-items:center;gap:14px;padding:12px;border-radius:10px;background:var(--sunken);margin-top:12px}
+.counter .n{font-family:var(--f-mono);font-size:2rem;line-height:1}
+.counter .n small{font-size:.9rem;color:var(--muted)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--rule);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:.86rem;background:var(--surface)}
+th{text-align:left;font-size:.74rem;color:var(--muted);background:var(--sunken);padding:8px 10px;border-bottom:1px solid var(--rule);white-space:nowrap;font-weight:700}
+td{padding:8px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td .before{color:var(--ng);text-decoration:line-through}
+td .after{color:var(--ok);font-weight:700}
+/* board */
+.board-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.board-bar select{width:auto}
+.summary{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.days{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:500}
+.row-done td{color:var(--muted)}
+.cell-actions{display:flex;flex-wrap:wrap;gap:4px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:8px;font-size:.86rem;z-index:20}
+section.panel[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+<style>
+.sh-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.sh-list li{display:grid;grid-template-columns:auto auto 1fr;gap:8px;align-items:start;padding:8px 10px;border-radius:8px;background:var(--sunken);font-size:.9rem}
+.sh-list li .no{font-family:var(--f-mono);font-weight:700;color:var(--accent)}
+.sh-list li select{font:inherit;font-size:.78rem;padding:2px 4px;border-radius:5px;border:1px solid var(--rule);background:var(--surface);color:var(--ink);width:auto}
+.round{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px;border-radius:10px;background:var(--sunken);margin-top:12px}
+.round .big{font-family:var(--f-mono);font-size:1.6rem;font-weight:700}
+.round.warn{background:var(--warn-soft)}.round.ng{background:var(--ng-soft)}
+.hist{font-size:.82rem;color:var(--muted);margin:8px 0 0;padding-left:1.2em}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>お仕事ノート制作チェック<span class="beta">BETA</span></h1>
+      <p class="sub">先方から届いた修正指示を、1件ずつの作業リストにします。修正の回数も数えます。入力した内容はこのブラウザの中だけで処理し、どこにも送りません。</p>
+    </div>
+    <p class="sub">基準：中広「制作規定」デザイナー制作後の修正は上限3回</p>
+  </header>
+
+  <nav class="tabs">
+    <a href="seisaku-check.html#intake"><span class="k">1</span>素材チェック</a>
+    <a href="seisaku-check.html#check"><span class="k">2</span>原稿チェック</a>
+    <a href="atari.html"><span class="k">3</span>アタリ生成</a>
+    <a href="ruby.html"><span class="k">4</span>ルビ振り</a>
+    <a href="shusei.html" aria-current="page"><span class="k">5</span>修正指示の整理</a>
+  </nav>
+
+  <section class="panel">
+    <div class="panel-head"><h2>5. 修正指示の整理</h2><span class="chip info">ブラウザ内で処理</span></div>
+    <p class="lead">先方のメール本文（または赤字の書き起こし）を貼って「リストにする」を押すと、修正箇所を1件ずつに分けます。「この回を記録」を押すと、その会社の修正回数が増えます。回数はこのブラウザに保存されます。</p>
+    <div class="cols">
+      <div class="box">
+        <div class="row2">
+          <div><label for="s-co">会社名</label><input type="text" id="s-co" list="s-cos" placeholder="例：株式会社オーハマ"><datalist id="s-cos"></datalist></div>
+          <div><label for="s-stage">段階</label><select id="s-stage"><option>アタリ（仮）原稿</option><option selected>本原稿</option><option>ルビ後原稿</option></select></div>
+        </div>
+        <label for="s-text">先方からの修正指示</label>
+        <textarea id="s-text" style="min-height:240px">お世話になっております。
+原稿確認いたしました。以下の点について修正をお願いします。
+
+①本社外観写真を添付の画像に差し替えてください。
+②「私たちの仕事」の3行目、「製造しています」を「つくっています」に変更
+・従業員数は120名に修正をお願いします
+・働く人の声の写真はもう少し明るいものに変えたいです。後日お送りします。
+また、取り組みの部分の工場見学の文章は削除してください。
+
+よろしくお願いいたします。</textarea>
+        <div class="actions"><button class="btn" id="s-run" type="button">リストにする</button><span class="status" id="s-status"></span></div>
+        <div class="round" id="s-round"><span>この会社の修正（本原稿以降）</span><span class="big" id="s-count">0</span><span>回目まで記録済み</span>
+          <button class="btn2" id="s-rec" type="button">この回を記録</button><button class="btn2" id="s-undo" type="button">1回取り消す</button></div>
+        <ul class="hist" id="s-hist"></ul>
+      </div>
+      <div class="box">
+        <h3>修正リスト</h3>
+        <ul class="sh-list" id="s-out"><li><span class="no">例</span><span></span><span>左の指示で「リストにする」を押すと、ここに1件ずつ出ます。</span></li></ul>
+        <h3 style="margin-top:16px">田中さんへの依頼テキスト（コピーしてメールに貼れます）</h3>
+        <pre class="copy" id="s-copytext">リストにすると、ここにテキストが出ます。</pre>
+        <div class="actions"><button class="btn2" id="s-copy" type="button">テキストをコピー</button></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id)};
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+var KEY="oshigoto-shusei-v1";
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){return{}}}
+function save(d){try{localStorage.setItem(KEY,JSON.stringify(d))}catch(e){}}
+function today(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+var TYPES=["差し替え","文言の修正","削除","追加","後日支給","その他"];
+function guessType(s){
+  if(/後日|あとで|改めて|追って|お送りします|送ります/.test(s))return"後日支給";
+  if(/差し?替え|差替|変えたい|入れ替え|交換/.test(s))return"差し替え";
+  if(/削除|消して|なくして|カット|外して/.test(s))return"削除";
+  if(/追加|加えて|足して|入れてほしい|載せて/.test(s))return"追加";
+  if(/修正|変更|直して|訂正|誤|→|に変え/.test(s))return"文言の修正";
+  return"その他";
+}
+var GREET=/^(お世話に|いつも|お疲れ|おつかれ|よろしく|宜しく|以上|ありがとうございます|原稿.*(確認|拝見)|以下の|下記の|何卒|引き続き)/;
+var ASK=/修正|変更|差し?替|削除|追加|直し|訂正|お願い|ください|下さい|したい|てほしい|に変|→|送ります|お送りします/;
+function split(text){
+  var items=[];
+  text.replace(/\r/g,"").split("\n").forEach(function(raw){
+    var l=raw.replace(/^>+\s?/,"").trim();if(!l)return;
+    if(/^[-─━]{3,}|^(From|Sent|To|Subject|件名|差出人)[:：]/i.test(l))return;
+    var bullet=/^([①-⑳]|\(?\d{1,2}[).．、]|\d{1,2}\s|[・●■◆▼\-＊*※])/.test(l);
+    var body=l.replace(/^([①-⑳]|\(?\d{1,2}[).．、]|\d{1,2}\s|[・●■◆▼\-＊*※])\s*/,"");
+    if(!bullet&&GREET.test(body))return;
+    if(!bullet&&!ASK.test(body))return;
+    /* 1行に「また、」などで複数あれば分ける */
+    body.split(/(?<=。)\s*(?=また[、,]|あと[、,]|それと|加えて)/).forEach(function(p){p=p.replace(/^(また|あと|それと|加えて)[、,]\s*/,"").trim();if(p)items.push({t:p,type:guessType(p)})});
+  });
+  return items;
+}
+var items=[];
+function drawList(){
+  $("s-out").innerHTML=items.length?items.map(function(it,i){return'<li><span class="no">'+(i+1)+'</span><select data-i="'+i+'">'+TYPES.map(function(t){return'<option'+(t===it.type?' selected':'')+'>'+t+'</option>'}).join("")+'</select><span>'+esc(it.t)+'</span></li>'}).join(""):'<li><span class="no">-</span><span></span><span>修正指示が見つかりませんでした。1件ずつ改行して貼ってみてください。</span></li>';
+  var co=$("s-co").value.trim()||"（会社名）",n=(load()[co]||[]).length;
+  var later=items.filter(function(x){return x.type==="後日支給"});
+  $("s-copytext").textContent="【修正依頼】"+co+"　"+$("s-stage").value+"（"+(n+1)+"回目）\n"+
+    items.filter(function(x){return x.type!=="後日支給"}).map(function(x,i){return (i+1)+". ［"+x.type+"］"+x.t}).join("\n")+
+    (later.length?"\n\n※先方から後日支給予定：\n"+later.map(function(x){return"・"+x.t}).join("\n"):"")+
+    (n+1>3?"\n\n※修正の上限（3回）を超えています。先方への伝え方を相談させてください。":"");
+  $("s-status").textContent=items.length+"件に分けました";
+}
+$("s-out").addEventListener("change",function(e){var s=e.target.closest("select");if(!s)return;items[+s.getAttribute("data-i")].type=s.value;drawList()});
+function drawRound(){
+  var d=load(),co=$("s-co").value.trim(),h=co?(d[co]||[]):[],n=h.length;
+  $("s-count").textContent=n;
+  $("s-round").className="round"+(n>=3?" ng":n===2?" warn":"");
+  $("s-hist").innerHTML=h.map(function(x,i){return'<li>'+(i+1)+'回目：'+esc(x.date)+'　'+esc(x.stage)+'（'+x.n+'件）</li>'}).join("")+(n>=3?'<li><b>上限の3回に達しています。</b></li>':'');
+  $("s-cos").innerHTML=Object.keys(d).map(function(k){return'<option value="'+esc(k)+'">'}).join("");
+}
+$("s-run").onclick=function(){items=split($("s-text").value);drawList()};
+$("s-rec").onclick=function(){var co=$("s-co").value.trim();if(!co){$("s-status").textContent="会社名を入れてください";return}
+  var d=load();(d[co]=d[co]||[]).push({date:today(),stage:$("s-stage").value,n:items.length});save(d);drawRound();drawList();$("s-status").textContent="記録しました（"+d[co].length+"回目）"};
+$("s-undo").onclick=function(){var co=$("s-co").value.trim(),d=load();if(!co||!d[co]||!d[co].length)return;d[co].pop();if(!d[co].length)delete d[co];save(d);drawRound();drawList()};
+$("s-co").addEventListener("input",function(){drawRound();if(items.length)drawList()});
+$("s-stage").onchange=function(){if(items.length)drawList()};
+$("s-copy").onclick=function(){var t=$("s-copytext").textContent;try{navigator.clipboard.writeText(t).then(function(){$("s-status").textContent="コピーしました"},function(){$("s-status").textContent="コピーできませんでした"})}catch(e){$("s-status").textContent="コピーできませんでした"}};
+drawRound();
+})();
+</script>
+
+</body>
+</html>

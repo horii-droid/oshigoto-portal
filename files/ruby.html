@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>ルビ振り</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: 作業台。上に版元ラベル付きヘッダー、タブで5ツール切替、各ツールは「入力｜結果」の2カラム（スマホは縦積み） */
+:root{
+  --bg:#F3F5F4; --surface:#FFFFFF; --sunken:#E8ECEA; --ink:#1C2422; --muted:#5A6663; --rule:#D3DAD7;
+  --accent:#17616B; --accent-ink:#FFFFFF; --accent-soft:#DCEDEE;
+  --ng:#B3362B; --ng-soft:#F8E1DE; --warn:#8A6410; --warn-soft:#F6EBCD; --ok:#2E7550; --ok-soft:#DDEFE4;
+  --marker:#FFE97A;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#131918; --surface:#1B2321; --sunken:#111615; --ink:#E4EBE8; --muted:#9AA7A3; --rule:#2E3936;
+  --accent:#5FB7C2; --accent-ink:#0E1716; --accent-soft:#1D3437;
+  --ng:#EE8A7F; --ng-soft:#3A2220; --warn:#E5BE62; --warn-soft:#352B14; --ok:#7DCB9F; --ok-soft:#1A3326;
+  --marker:#5C5220; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#131918; --surface:#1B2321; --sunken:#111615; --ink:#E4EBE8; --muted:#9AA7A3; --rule:#2E3936;
+  --accent:#5FB7C2; --accent-ink:#0E1716; --accent-soft:#1D3437;
+  --ng:#EE8A7F; --ng-soft:#3A2220; --warn:#E5BE62; --warn-soft:#352B14; --ok:#7DCB9F; --ok-soft:#1A3326;
+  --marker:#5C5220; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.75;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 64px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 24px;padding-bottom:14px;border-bottom:2px solid var(--ink)}
+header.top h1{margin:0;font-size:1.55rem;font-weight:700;letter-spacing:.02em;text-wrap:balance}
+header.top .sub{margin:2px 0 0;color:var(--muted);font-size:.86rem}
+.beta{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;border:1.5px solid var(--accent);color:var(--accent);padding:2px 8px;border-radius:4px;vertical-align:middle;margin-left:8px}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;margin:14px 0 20px;padding-bottom:2px}
+nav.tabs a{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;text-decoration:none;color:var(--muted);font-weight:500;font-size:.92rem;border:1px solid transparent}
+nav.tabs a .k{font-family:var(--f-mono);font-size:.75rem;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--sunken);color:var(--muted)}
+nav.tabs a:hover{color:var(--ink)}
+nav.tabs a[aria-current="page"]{background:var(--surface);border-color:var(--rule);color:var(--ink)}
+nav.tabs a[aria-current="page"] .k{background:var(--accent);color:var(--accent-ink)}
+nav.tabs a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.panel-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:6px}
+.panel-head h2{margin:0;font-size:1.25rem}
+.lead{margin:0 0 18px;color:var(--muted);max-width:72ch;font-size:.92rem}
+.cols{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:20px;align-items:start}
+@media (max-width:860px){.cols{grid-template-columns:1fr}}
+.box{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:16px}
+.box h3{margin:0 0 10px;font-size:.95rem}
+label{display:block;font-size:.82rem;font-weight:700;color:var(--muted);margin:12px 0 4px}
+label:first-child{margin-top:0}
+input[type=text],input[type=date],select,textarea{width:100%;font:inherit;font-size:.92rem;color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:7px;padding:8px 10px}
+textarea{min-height:120px;resize:vertical;line-height:1.7}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+@media (max-width:480px){.row2{grid-template-columns:1fr}}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+button{font:inherit;cursor:pointer;border-radius:7px;font-size:.9rem}
+.btn{background:var(--accent);color:var(--accent-ink);border:none;padding:9px 18px;font-weight:700}
+.btn:disabled{opacity:.5;cursor:default}
+.btn2{background:transparent;color:var(--ink);border:1px solid var(--rule);padding:8px 14px}
+.btn2:hover{border-color:var(--muted)}
+.btn-s{padding:4px 10px;font-size:.8rem}
+.status{font-size:.82rem;color:var(--muted)}
+.note{font-size:.8rem;color:var(--muted);margin:10px 0 0}
+.empty{color:var(--muted);font-size:.9rem;padding:22px 8px;text-align:center;border:1.5px dashed var(--rule);border-radius:10px}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:.75rem;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.chip.ng{background:var(--ng-soft);color:var(--ng)} .chip.warn{background:var(--warn-soft);color:var(--warn)} .chip.ok{background:var(--ok-soft);color:var(--ok)} .chip.info{background:var(--accent-soft);color:var(--accent)}
+.sample-tag{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;color:var(--warn);background:var(--warn-soft);padding:2px 8px;border-radius:4px}
+/* draft output */
+.draft h4{margin:14px 0 4px;font-size:.78rem;color:var(--muted);letter-spacing:.06em}
+.draft .catch{font-size:1.3rem;font-weight:700;line-height:1.5;text-wrap:balance;margin:0}
+.draft p{margin:0}
+.draft .voice{border-left:3px solid var(--accent);padding:4px 0 4px 12px}
+.draft ul{margin:4px 0 0;padding-left:1.2em}
+/* findings */
+.findings{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.finding{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:start;padding:8px 10px;border-radius:8px;background:var(--sunken);font-size:.86rem}
+.finding b{font-weight:700}
+.finding .sug{color:var(--ok);font-weight:700}
+mark.ng{background:var(--ng-soft);color:var(--ng);text-decoration:underline wavy var(--ng);text-underline-offset:3px;border-radius:3px}
+mark.warn{background:var(--warn-soft);color:var(--warn);text-decoration:underline wavy var(--warn);text-underline-offset:3px;border-radius:3px}
+.hl{white-space:pre-wrap;background:var(--bg);border:1px solid var(--rule);border-radius:8px;padding:12px;font-size:.9rem;line-height:2}
+/* intake */
+.checklist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.checklist li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:8px 10px;border-radius:8px;background:var(--sunken);font-size:.88rem}
+.drop{border:1.5px dashed var(--rule);border-radius:8px;padding:14px;text-align:center;color:var(--muted);font-size:.85rem;cursor:pointer}
+.drop.over{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.drop input{display:none}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:10px}
+.thumb{border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--bg);font-size:.72rem}
+.thumb img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;max-width:100%}
+.thumb div{padding:4px 6px;font-family:var(--f-mono);line-height:1.4}
+pre.copy{white-space:pre-wrap;background:var(--bg);border:1px solid var(--rule);border-radius:8px;padding:12px;font-family:var(--f-body);font-size:.86rem;margin:8px 0 0}
+/* revise */
+.counter{display:flex;align-items:center;gap:14px;padding:12px;border-radius:10px;background:var(--sunken);margin-top:12px}
+.counter .n{font-family:var(--f-mono);font-size:2rem;line-height:1}
+.counter .n small{font-size:.9rem;color:var(--muted)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--rule);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:.86rem;background:var(--surface)}
+th{text-align:left;font-size:.74rem;color:var(--muted);background:var(--sunken);padding:8px 10px;border-bottom:1px solid var(--rule);white-space:nowrap;font-weight:700}
+td{padding:8px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td .before{color:var(--ng);text-decoration:line-through}
+td .after{color:var(--ok);font-weight:700}
+/* board */
+.board-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.board-bar select{width:auto}
+.summary{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.days{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:500}
+.row-done td{color:var(--muted)}
+.cell-actions{display:flex;flex-wrap:wrap;gap:4px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:8px;font-size:.86rem;z-index:20}
+section.panel[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+<style>
+.rb-out{font-size:1.05rem;line-height:2.6;white-space:pre-wrap;background:var(--bg);border:1px solid var(--rule);border-radius:8px;padding:14px}
+.rb-out ruby{ruby-position:over}
+.rb-out rt{font-size:.55em;color:var(--accent);font-weight:700}
+.rb-out .chk{background:var(--warn-soft);border-radius:3px;outline:1px dashed var(--warn)}
+.rb-out .chk rt{color:var(--warn)}
+.rb-out [contenteditable]{outline:none}
+table.rb{min-width:0}
+table.rb td input{width:100%;font:inherit;font-size:.9rem;border:1px solid var(--rule);border-radius:5px;padding:3px 6px;background:var(--bg);color:var(--ink)}
+.rb-tag{font-size:.72rem;font-weight:700;color:var(--warn);white-space:nowrap}
+.rb-load{color:var(--muted);font-size:.86rem}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>お仕事ノート制作チェック<span class="beta">BETA</span></h1>
+      <p class="sub">原稿を貼ると、漢字の読みを自動で付けます。入力した内容はこのブラウザの中だけで処理し、どこにも送りません。</p>
+    </div>
+    <p class="sub">読みの辞書：kuromoji（IPA辞書）</p>
+  </header>
+
+  <nav class="tabs">
+    <a href="seisaku-check.html#intake"><span class="k">1</span>素材チェック</a>
+    <a href="seisaku-check.html#check"><span class="k">2</span>原稿チェック</a>
+    <a href="atari.html"><span class="k">3</span>アタリ生成</a>
+    <a href="ruby.html" aria-current="page"><span class="k">4</span>ルビ振り</a>
+    <a href="shusei.html"><span class="k">5</span>修正指示の整理</a>
+  </nav>
+
+  <section class="panel">
+    <div class="panel-head"><h2>4. ルビ振り</h2><span class="chip info">試作版</span></div>
+    <p class="lead">ルビ前校了の原稿を貼って「ルビを付ける」を押すと、すべての漢字に読みを付けます。人名・地名・社名など読みが確定できない語は黄色で示すので、そこだけ確認してください。読みは右の一覧で直せます。</p>
+    <div class="cols">
+      <div class="box">
+        <label for="r-text">原稿テキスト</label>
+        <textarea id="r-text" style="min-height:260px">私たちは、病院の血液検査などで使われる特別な薬「検査薬」をつくっています。
+自然豊かな伊豆の国市の工場から、世界中の人々へ安心を届けています。
+設計部の森圭佑さんは、お客さまの要望に合わせて設計図を作成します。</textarea>
+        <div class="actions"><button class="btn" id="r-run" type="button">ルビを付ける</button><button class="btn2" id="r-copy" type="button">「漢字（よみ）」形式でコピー</button><span class="status" id="r-status"></span></div>
+        <p class="note">※初回だけ辞書（約12MB）を読み込むので、少し時間がかかります。読みは機械的な推定です。必ず目で確認してください。</p>
+      </div>
+      <div class="box">
+        <h3>ルビ付きの表示</h3>
+        <div class="rb-out" id="r-out"><span class="rb-load">左の原稿で「ルビを付ける」を押すと、ここに表示されます。</span></div>
+        <h3 style="margin-top:16px">読みの一覧（直すと左の表示にも反映）</h3>
+        <div class="tbl-wrap"><table class="rb"><thead><tr><th>漢字</th><th>よみ</th><th>回数</th><th></th></tr></thead><tbody id="r-list"><tr><td colspan="4" class="rb-load">まだありません</td></tr></tbody></table></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js"></script>
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id)};
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+var KANJI=/[一-鿿㐀-䶿々〆ヶ]/;
+function hira(s){return s.replace(/[ァ-ヶ]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0x60)})}
+var tokenizer=null,loading=null,segs=[],fix={};
+function getTokenizer(){
+  if(tokenizer)return Promise.resolve(tokenizer);
+  if(loading)return loading;
+  loading=new Promise(function(res,rej){
+    if(!window.kuromoji){rej(new Error("辞書を読み込めませんでした（ネット接続を確認してください）"));return}
+    kuromoji.builder({dicPath:"https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/"}).build(function(err,t){if(err)rej(err);else{tokenizer=t;res(t)}});
+  });
+  return loading;
+}
+/* 送りがなを外して、漢字の部分だけに読みを付ける */
+function split(surface,reading){
+  var s=surface,r=hira(reading||""),pre="",post="";
+  while(s.length&&r.length&&!KANJI.test(s[0])&&hira(s[0])===r[0]){pre+=s[0];s=s.slice(1);r=r.slice(1)}
+  while(s.length&&r.length&&!KANJI.test(s[s.length-1])&&hira(s[s.length-1])===r[r.length-1]){post=s[s.length-1]+post;s=s.slice(0,-1);r=r.slice(0,-1)}
+  return {pre:pre,base:s,yomi:r,post:post};
+}
+function analyze(text){
+  return getTokenizer().then(function(t){
+    segs=[];
+    text.split(/(\n)/).forEach(function(line){
+      if(line==="\n"){segs.push({t:"\n"});return}
+      t.tokenize(line).forEach(function(k){
+        var sf=k.surface_form;
+        if(!KANJI.test(sf)){segs.push({t:sf});return}
+        var rd=k.reading&&k.reading!=="*"?k.reading:"";
+        var chk=k.pos_detail_1==="固有名詞"||!rd||(k.pos==="名詞"&&k.pos_detail_1==="数");
+        var p=split(sf,rd);
+        if(p.pre)segs.push({t:p.pre});
+        segs.push({k:p.base,y:p.yomi,chk:chk,why:!rd?"読み不明":k.pos_detail_1==="固有名詞"?(k.pos_detail_2==="人名"?"人名":k.pos_detail_2==="地域"?"地名":"固有名詞"):"数"});
+        if(p.post)segs.push({t:p.post});
+      });
+    });
+  });
+}
+function yomiOf(s){return fix[s.k]!=null?fix[s.k]:s.y}
+function draw(){
+  $("r-out").innerHTML=segs.map(function(s){if(s.t!=null)return esc(s.t);var y=yomiOf(s);
+    return '<ruby'+(s.chk&&fix[s.k]==null?' class="chk" title="'+esc(s.why)+'：読みを確認してください"':'')+'>'+esc(s.k)+'<rt>'+esc(y||"？")+'</rt></ruby>'}).join("");
+  var m={},order=[];segs.forEach(function(s){if(s.k==null)return;if(!m[s.k]){m[s.k]={n:0,y:s.y,chk:s.chk,why:s.why};order.push(s.k)}m[s.k].n++});
+  order.sort(function(a,b){return(m[b].chk-m[a].chk)});
+  $("r-list").innerHTML=order.length?order.map(function(k){var e=m[k];return'<tr><td><b>'+esc(k)+'</b></td><td><input data-k="'+esc(k)+'" value="'+esc(fix[k]!=null?fix[k]:e.y)+'" aria-label="'+esc(k)+'のよみ"></td><td>'+e.n+'</td><td>'+(e.chk&&fix[k]==null?'<span class="rb-tag">要確認（'+esc(e.why)+'）</span>':'')+'</td></tr>'}).join(""):'<tr><td colspan="4" class="rb-load">漢字がありません</td></tr>';
+  var c=order.filter(function(k){return m[k].chk&&fix[k]==null}).length;
+  $("r-status").textContent=order.length+"語に読みを付けました"+(c?"（要確認 "+c+"語）":"");
+}
+$("r-list").addEventListener("change",function(e){var i=e.target.closest("input");if(!i)return;fix[i.getAttribute("data-k")]=i.value.trim();draw()});
+$("r-run").onclick=function(){
+  var b=this;b.disabled=true;$("r-status").textContent="辞書を読み込み中…";
+  analyze($("r-text").value).then(draw).catch(function(e){$("r-status").textContent=e.message||"読み込みに失敗しました"}).then(function(){b.disabled=false});
+};
+$("r-copy").onclick=function(){
+  if(!segs.length)return;
+  var txt=segs.map(function(s){return s.t!=null?s.t:s.k+"（"+(yomiOf(s)||"？")+"）"}).join("");
+  try{navigator.clipboard.writeText(txt).then(function(){$("r-status").textContent="コピーしました"},function(){$("r-status").textContent="コピーできませんでした"})}catch(e){$("r-status").textContent="コピーできませんでした"}
+};
+})();
+</script>
+
+</body>
+</html>
