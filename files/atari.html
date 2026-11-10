@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>アタリ生成</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: 作業台。上に版元ラベル付きヘッダー、タブで5ツール切替、各ツールは「入力｜結果」の2カラム（スマホは縦積み） */
+:root{
+  --bg:#F3F5F4; --surface:#FFFFFF; --sunken:#E8ECEA; --ink:#1C2422; --muted:#5A6663; --rule:#D3DAD7;
+  --accent:#17616B; --accent-ink:#FFFFFF; --accent-soft:#DCEDEE;
+  --ng:#B3362B; --ng-soft:#F8E1DE; --warn:#8A6410; --warn-soft:#F6EBCD; --ok:#2E7550; --ok-soft:#DDEFE4;
+  --marker:#FFE97A;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#131918; --surface:#1B2321; --sunken:#111615; --ink:#E4EBE8; --muted:#9AA7A3; --rule:#2E3936;
+  --accent:#5FB7C2; --accent-ink:#0E1716; --accent-soft:#1D3437;
+  --ng:#EE8A7F; --ng-soft:#3A2220; --warn:#E5BE62; --warn-soft:#352B14; --ok:#7DCB9F; --ok-soft:#1A3326;
+  --marker:#5C5220; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#131918; --surface:#1B2321; --sunken:#111615; --ink:#E4EBE8; --muted:#9AA7A3; --rule:#2E3936;
+  --accent:#5FB7C2; --accent-ink:#0E1716; --accent-soft:#1D3437;
+  --ng:#EE8A7F; --ng-soft:#3A2220; --warn:#E5BE62; --warn-soft:#352B14; --ok:#7DCB9F; --ok-soft:#1A3326;
+  --marker:#5C5220; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.75;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 64px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 24px;padding-bottom:14px;border-bottom:2px solid var(--ink)}
+header.top h1{margin:0;font-size:1.55rem;font-weight:700;letter-spacing:.02em;text-wrap:balance}
+header.top .sub{margin:2px 0 0;color:var(--muted);font-size:.86rem}
+.beta{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;border:1.5px solid var(--accent);color:var(--accent);padding:2px 8px;border-radius:4px;vertical-align:middle;margin-left:8px}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;margin:14px 0 20px;padding-bottom:2px}
+nav.tabs a{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;text-decoration:none;color:var(--muted);font-weight:500;font-size:.92rem;border:1px solid transparent}
+nav.tabs a .k{font-family:var(--f-mono);font-size:.75rem;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--sunken);color:var(--muted)}
+nav.tabs a:hover{color:var(--ink)}
+nav.tabs a[aria-current="page"]{background:var(--surface);border-color:var(--rule);color:var(--ink)}
+nav.tabs a[aria-current="page"] .k{background:var(--accent);color:var(--accent-ink)}
+nav.tabs a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.panel-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:6px}
+.panel-head h2{margin:0;font-size:1.25rem}
+.lead{margin:0 0 18px;color:var(--muted);max-width:72ch;font-size:.92rem}
+.cols{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:20px;align-items:start}
+@media (max-width:860px){.cols{grid-template-columns:1fr}}
+.box{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:16px}
+.box h3{margin:0 0 10px;font-size:.95rem}
+label{display:block;font-size:.82rem;font-weight:700;color:var(--muted);margin:12px 0 4px}
+label:first-child{margin-top:0}
+input[type=text],input[type=date],select,textarea{width:100%;font:inherit;font-size:.92rem;color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:7px;padding:8px 10px}
+textarea{min-height:120px;resize:vertical;line-height:1.7}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+@media (max-width:480px){.row2{grid-template-columns:1fr}}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+button{font:inherit;cursor:pointer;border-radius:7px;font-size:.9rem}
+.btn{background:var(--accent);color:var(--accent-ink);border:none;padding:9px 18px;font-weight:700}
+.btn:disabled{opacity:.5;cursor:default}
+.btn2{background:transparent;color:var(--ink);border:1px solid var(--rule);padding:8px 14px}
+.btn2:hover{border-color:var(--muted)}
+.btn-s{padding:4px 10px;font-size:.8rem}
+.status{font-size:.82rem;color:var(--muted)}
+.note{font-size:.8rem;color:var(--muted);margin:10px 0 0}
+.empty{color:var(--muted);font-size:.9rem;padding:22px 8px;text-align:center;border:1.5px dashed var(--rule);border-radius:10px}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:.75rem;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.chip.ng{background:var(--ng-soft);color:var(--ng)} .chip.warn{background:var(--warn-soft);color:var(--warn)} .chip.ok{background:var(--ok-soft);color:var(--ok)} .chip.info{background:var(--accent-soft);color:var(--accent)}
+.sample-tag{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;color:var(--warn);background:var(--warn-soft);padding:2px 8px;border-radius:4px}
+/* draft output */
+.draft h4{margin:14px 0 4px;font-size:.78rem;color:var(--muted);letter-spacing:.06em}
+.draft .catch{font-size:1.3rem;font-weight:700;line-height:1.5;text-wrap:balance;margin:0}
+.draft p{margin:0}
+.draft .voice{border-left:3px solid var(--accent);padding:4px 0 4px 12px}
+.draft ul{margin:4px 0 0;padding-left:1.2em}
+/* findings */
+.findings{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.finding{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:start;padding:8px 10px;border-radius:8px;background:var(--sunken);font-size:.86rem}
+.finding b{font-weight:700}
+.finding .sug{color:var(--ok);font-weight:700}
+mark.ng{background:var(--ng-soft);color:var(--ng);text-decoration:underline wavy var(--ng);text-underline-offset:3px;border-radius:3px}
+mark.warn{background:var(--warn-soft);color:var(--warn);text-decoration:underline wavy var(--warn);text-underline-offset:3px;border-radius:3px}
+.hl{white-space:pre-wrap;background:var(--bg);border:1px solid var(--rule);border-radius:8px;padding:12px;font-size:.9rem;line-height:2}
+/* intake */
+.checklist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.checklist li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:8px 10px;border-radius:8px;background:var(--sunken);font-size:.88rem}
+.drop{border:1.5px dashed var(--rule);border-radius:8px;padding:14px;text-align:center;color:var(--muted);font-size:.85rem;cursor:pointer}
+.drop.over{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.drop input{display:none}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:10px}
+.thumb{border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--bg);font-size:.72rem}
+.thumb img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;max-width:100%}
+.thumb div{padding:4px 6px;font-family:var(--f-mono);line-height:1.4}
+pre.copy{white-space:pre-wrap;background:var(--bg);border:1px solid var(--rule);border-radius:8px;padding:12px;font-family:var(--f-body);font-size:.86rem;margin:8px 0 0}
+/* revise */
+.counter{display:flex;align-items:center;gap:14px;padding:12px;border-radius:10px;background:var(--sunken);margin-top:12px}
+.counter .n{font-family:var(--f-mono);font-size:2rem;line-height:1}
+.counter .n small{font-size:.9rem;color:var(--muted)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--rule);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:.86rem;background:var(--surface)}
+th{text-align:left;font-size:.74rem;color:var(--muted);background:var(--sunken);padding:8px 10px;border-bottom:1px solid var(--rule);white-space:nowrap;font-weight:700}
+td{padding:8px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td .before{color:var(--ng);text-decoration:line-through}
+td .after{color:var(--ok);font-weight:700}
+/* board */
+.board-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.board-bar select{width:auto}
+.summary{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.days{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:500}
+.row-done td{color:var(--muted)}
+.cell-actions{display:flex;flex-wrap:wrap;gap:4px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:8px;font-size:.86rem;z-index:20}
+section.panel[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+<style>
+/* ---- アタリ生成ページ固有 ---- */
+.inrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 12px}
+@media (max-width:860px){.inrow{grid-template-columns:1fr 1fr}}
+.stage{position:relative;width:100%;overflow:hidden;background:var(--sunken);border:1px solid var(--rule);border-radius:10px;margin-top:14px}
+.stage-inner{transform-origin:0 0;position:absolute;left:0;top:0}
+.checks{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.checks .chip{font-weight:500}
+.howto{margin:8px 0 0;padding-left:1.2em;color:var(--muted);font-size:.86rem}
+
+/* ---- 見開き（A4横 297×210mm 相当） ---- */
+.sp{--c:#EE6461;--t:#22A98D;--t2:#1B8F77;--y:#FFFBE6;--pk:#F19C9A;--g:#BFC3C5;--k:#2A2A2A;
+  width:297mm;height:210mm;position:relative;background:#fff;color:var(--k);overflow:hidden;
+  font-family:"M PLUS Rounded 1c","Zen Kaku Gothic New","Hiragino Maru Gothic ProN",sans-serif;font-size:2.7mm;line-height:1.7;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;box-shadow:0 1px 6px rgba(0,0,0,.18)}
+.sp *{box-sizing:border-box}
+.sp .bar{position:absolute;left:0;right:0;top:0;height:2.2mm;background:var(--c)}
+.sp .pg{position:absolute;top:0;bottom:0;width:148.5mm}
+.sp .pg.l{left:0}.sp .pg.r{left:148.5mm}
+.sp .gut{position:absolute;left:148.5mm;top:0;bottom:0;border-left:.2mm dashed #ddd}
+.sp .num{position:absolute;bottom:4mm;width:6mm;height:6mm;border:.3mm solid #555;border-radius:50%;font-size:2mm;display:grid;place-items:center}
+.sp .pg.l .num{left:6mm}.sp .pg.r .num{right:6mm}
+.sp .ab{position:absolute}
+.sp .fit{overflow:hidden}
+.sp .over{outline:.6mm dashed #E0201B;outline-offset:-.3mm;background-image:repeating-linear-gradient(45deg,rgba(224,32,27,.07) 0 2mm,transparent 2mm 4mm)}
+.sp .ph{background:var(--g);color:#fff;font-weight:800;display:grid;place-items:center;cursor:pointer;overflow:hidden;position:relative;border-radius:1.5mm;font-family:Arial,Helvetica,sans-serif}
+.sp .ph span{font-size:6mm;letter-spacing:.02em}
+.sp .ph.has span{display:none}
+.sp .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.sp .ph:hover{filter:brightness(.95)}
+.sp .dummy{color:#9a9a9a}
+/* 左上の業種タブ */
+.sp .tab{left:0;top:0;width:27mm;height:34mm;background:var(--c);border-radius:0 0 6mm 0;color:#fff;text-align:center;padding-top:5mm}
+.sp .tab .ic{margin:0 auto;width:17mm;height:14mm;border:.3mm dashed rgba(255,255,255,.85);font-size:2mm;line-height:1.35;display:grid;place-items:center}
+.sp .tab .gy{position:absolute;left:0;right:0;bottom:3.2mm;font-weight:800;font-size:3.1mm;line-height:1.2;padding:0 1.5mm}
+/* 基本情報 */
+.sp .catch{left:30mm;top:4.2mm;width:92mm;height:12.5mm;color:var(--t);font-weight:800;font-size:4.5mm;line-height:1.35}
+.sp .qr{right:6mm;top:3.5mm;width:14mm;text-align:center;font-size:1.5mm;line-height:1.3;color:#555}
+.sp .qr .cir{width:11.5mm;height:11.5mm;margin:0 auto .6mm;border:.5mm solid var(--t);border-radius:50%;display:grid;place-items:center}
+.sp .qr .cir i{display:block;width:6.5mm;height:6.5mm;background:repeating-conic-gradient(#333 0 25%,#fff 0 50%) 0 0/1.6mm 1.6mm}
+.sp .badges{left:96mm;top:19.5mm;display:flex;gap:.8mm}
+.sp .badges b{font-size:1.65mm;color:var(--t2);border:.3mm solid var(--t);border-radius:3mm;padding:.2mm 1.4mm;font-weight:700;background:#fff}
+.sp .cname{left:30mm;top:17.6mm;width:66mm;font-weight:800;font-size:3.5mm;line-height:1.3;white-space:nowrap}
+.sp .cdata{left:30mm;top:24.2mm;width:113mm;font-size:2.05mm;line-height:1.75;white-space:nowrap}
+.sp .cdata em{font-style:normal;color:#E0201B;font-weight:700}
+/* 私たちの仕事 */
+.sp .work{left:6mm;top:38mm;width:136.5mm;height:62mm;background:var(--y);border:.8mm solid var(--pk);border-radius:4mm;padding:3.5mm 4mm 3mm}
+.sp .work h4{margin:0 0 1.5mm;font-size:4.3mm;font-weight:800;line-height:1.3}
+.sp .work .wb{display:flex;gap:4mm;height:45mm}
+.sp .work .wt{flex:1;font-size:2.7mm;line-height:1.85}
+.sp .work .wp{width:47mm;display:flex;flex-direction:column}
+.sp .work .wp .ph{height:38mm}
+.sp .cap{font-size:2mm;margin-top:.6mm}
+.sp .cap::before{content:"▲ ";color:var(--t)}
+/* 「？」付き見出し */
+.sp .pill{display:flex;align-items:center;background:var(--t);color:#fff;font-weight:800;font-size:3.4mm;line-height:1.25;border-radius:0 3mm 3mm 0;min-height:7mm;padding:.8mm 3mm .8mm 0;margin-left:3.5mm;position:relative}
+.sp .pill::before{content:"?";flex:0 0 auto;width:8.5mm;height:8.5mm;margin:-1mm 2mm -1mm -3.5mm;border-radius:50%;background:#fff;border:.6mm solid var(--t);color:var(--t);display:grid;place-items:center;font-size:4.4mm;font-family:Arial,sans-serif}
+/* 業種ブロック */
+.sp .gyo{left:6mm;top:104mm;width:136.5mm;height:94mm}
+.sp .gyo .gt{display:flex;gap:4mm;height:43mm}
+.sp .gyo .gtx{flex:1;display:flex;flex-direction:column;min-width:0}
+.sp .gyo .gcopy{font-weight:800;font-size:3.7mm;line-height:1.4;margin:2.2mm 0 1mm}
+.sp .gyo .gbody{font-size:2.65mm;line-height:1.75;flex:1}
+.sp .gyo .gph{width:47mm}
+.sp .gyo .gph .ph{height:100%}
+.sp .cards{display:flex;gap:2.5mm;height:47mm;margin-top:3mm}
+.sp .card{border:.6mm solid var(--t);border-radius:2.5mm;overflow:hidden;display:flex;flex-direction:column;background:#fff;min-width:0}
+.sp .card .ch{background:var(--t);color:#fff;font-weight:800;font-size:2.55mm;line-height:1.3;padding:1mm 1.8mm;white-space:nowrap;overflow:hidden}
+.sp .card .ph{flex:1;border-radius:0}
+.sp .card .cb{font-size:2.05mm;line-height:1.6;padding:1mm 1.8mm 1.2mm;height:12.6mm}
+/* PRブロック */
+.sp .pr{left:6mm;top:5.5mm;width:136.5mm;height:113mm}
+.sp .prtop{display:flex;gap:4mm;height:29mm}
+.sp .prtop .ph{width:44mm;flex:0 0 auto}
+.sp .prtop .prx{flex:1;min-width:0;display:flex;flex-direction:column}
+.sp .prtop .lead{font-size:2.8mm;line-height:1.75;margin-top:2mm;flex:1}
+.sp .prtop.row{height:13mm;align-items:flex-start}
+.sp .prtop.row .pill{flex:0 0 auto;max-width:78mm}
+.sp .prtop.row .lead{margin-top:0;font-size:2.55mm;line-height:1.6}
+.sp .pra{height:80mm;margin-top:3.5mm;display:grid;gap:2.5mm}
+.sp .pcard{border:.6mm solid var(--t);border-radius:2.5mm;background:#fff;overflow:hidden;display:flex;min-width:0;min-height:0}
+.sp .pcard.v{flex-direction:column;padding:1.6mm}
+.sp .pcard.h{flex-direction:row;padding:1.6mm;gap:2mm}
+.sp .pcard .ph{border-radius:1mm}
+.sp .pcard.v .ph{flex:1}
+.sp .pcard.h .ph{width:44%;flex:0 0 auto}
+.sp .pcard .px{display:flex;flex-direction:column;min-width:0;flex:1;min-height:0}
+.sp .pcard .ph3{color:var(--t);font-weight:800;font-size:2.55mm;line-height:1.35;margin-bottom:.8mm}
+.sp .pcard .ph3 .n{display:inline-block;background:var(--c);color:#fff;border-radius:.6mm;font-size:2mm;padding:0 1mm;margin-right:1mm;vertical-align:.2mm}
+.sp .pcard .pb{font-size:2.05mm;line-height:1.6;flex:1}
+.sp .pcard.v .pb{flex:0 0 auto;height:13.5mm;margin-top:1mm}
+.sp .frame{border:.8mm solid var(--t);border-radius:4mm;padding:2.5mm;height:97mm;margin-top:2mm;display:grid;gap:2mm}
+.sp .frame .pcard{border:none;padding:0}
+/* 社員ブロック */
+.sp .voice{left:0;top:122mm;width:148.5mm;height:88mm;background:var(--y);border-top:.8mm solid var(--pk);padding:3mm 6mm 8mm}
+.sp .voice .vt{text-align:center;color:var(--c);font-weight:800;font-size:3.8mm;line-height:1.3}
+.sp .voice .vs{text-align:center;color:var(--c);font-size:2.3mm;margin-bottom:2mm}
+.sp .people{display:grid;gap:3mm;height:62mm}
+.sp .person{display:flex;flex-direction:column;min-width:0;min-height:0}
+.sp .person .pt{display:flex;gap:2mm;align-items:flex-end;margin-bottom:2mm}
+.sp .person .pt .ph{width:26mm;height:22mm;flex:0 0 auto;border-radius:0}
+.sp .person .nm{border-left:1mm solid var(--c);padding-left:1.5mm;font-size:1.9mm;line-height:1.4}
+.sp .person .nm b{display:block;font-size:3mm;font-weight:500}
+.sp .bub{flex:1;border:.6mm solid var(--c);border-radius:3.5mm;background:#fff;padding:2mm 2.5mm;min-height:0}
+.sp .bub .bc{font-weight:800;font-size:2.7mm;line-height:1.4;margin-bottom:.8mm}
+.sp .bub .bb{font-size:2.1mm;line-height:1.6}
+.sp .person.big{flex-direction:row;gap:4mm}
+.sp .person.big .pt{flex-direction:column;align-items:stretch;width:40mm;margin:0}
+.sp .person.big .pt .ph{width:100%;height:40mm}
+.sp .vnote{position:absolute;left:0;right:0;bottom:3mm;text-align:center;font-size:2.4mm;color:#666}
+
+@media print{
+  @page{size:297mm 210mm;margin:0}
+  html,body{background:#fff!important;padding:0!important;margin:0!important}
+  header.top,nav.tabs,.panel-head,.panel>.lead,.panel>.box,.toast{display:none!important}
+  .wrap{padding:0!important;margin:0!important;max-width:none}
+  .stage{border:none;overflow:visible;background:none;margin:0;height:auto!important}
+  .stage-inner{transform:none!important;position:static!important}
+  .sp{page-break-after:avoid;break-after:avoid}
+  .sp{box-shadow:none}
+  .sp .over{outline:none;background-image:none}
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>お仕事ノート制作チェック<span class="beta">BETA</span></h1>
+      <p class="sub">Gemで作った原稿を貼ると、カセットの型に合わせてアタリ（仮）原稿の見開きを組みます。入力した内容や写真はこのブラウザの中だけで処理し、どこにも送りません。</p>
+    </div>
+    <p class="sub">基準：中広「掲載ガイドブック」2026-02-01版</p>
+  </header>
+
+  <nav class="tabs">
+    <a href="seisaku-check.html#intake"><span class="k">1</span>素材チェック</a>
+    <a href="seisaku-check.html#check"><span class="k">2</span>原稿チェック</a>
+    <a href="atari.html" aria-current="page"><span class="k">3</span>アタリ生成</a>
+  </nav>
+
+  <section class="panel">
+    <div class="panel-head"><h2>3. アタリ生成</h2><span class="chip info">試作版</span></div>
+    <p class="lead">Gemの出力をそのまま貼って「アタリを作る」を押してください。写真の枠（C-1、E-2など）をクリックすると、その枠に画像を入れられます。仕上がりはPDFで保存できます。</p>
+    <div class="box">
+      <label for="a-text">Gemの出力（【掲載テキスト原稿】から最後まで）</label>
+      <textarea id="a-text" style="min-height:220px"></textarea>
+      <div class="inrow">
+        <div><label for="a-gyo">業種名（アイコン表記）</label><input type="text" id="a-gyo" placeholder="例：金属加工"></div>
+        <div><label for="a-tel">電話番号</label><input type="text" id="a-tel" placeholder="例：054-000-0000"></div>
+        <div><label for="a-asof">従業員数の時点</label><input type="text" id="a-asof" value="2026年12月現在"></div>
+        <div><label for="a-voice">社員ブロック</label><select id="a-voice"><option value="A">A（1名）</option><option value="B" selected>B（2名）</option><option value="C">C（3名）</option><option value="D">D（4名）</option></select></div>
+      </div>
+      <div class="inrow">
+        <div><label for="a-pg">業種ブロック</label><select id="a-pg"><option value="">原稿のとおり</option><option>A</option><option>B</option><option>C</option><option>D</option></select></div>
+        <div><label for="a-pp">PRブロック</label><select id="a-pp"><option value="">原稿のとおり</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option><option>I</option><option>J</option><option>K</option><option>L</option></select></div>
+      </div>
+      <div class="actions"><button class="btn" id="a-run" type="button">アタリを作る</button><button class="btn2" id="a-print" type="button">PDFで保存</button><span class="status" id="a-status"></span></div>
+      <ul class="howto">
+        <li>PDFで保存：印刷画面で「送信先」を「PDFに保存」、用紙を「A4・横」、余白「なし」、「背景のグラフィック」にチェックを入れてください。</li>
+        <li>赤い斜線の枠は、文字が枠からはみ出している所です。原稿を短くするか、パターンを変えてください。</li>
+      </ul>
+      <div class="checks" id="a-checks"></div>
+    </div>
+    <div class="stage" id="a-stage"><div class="stage-inner" id="a-inner"></div></div>
+  </section>
+</div>
+
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id)};
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+var SAMPLE=["【掲載テキスト原稿】サンプル精工株式会社 様","（選定カセット：業種ブロックパターンA ／ PRブロックパターンD）","",
+"■ 1. 基本ブロック",
+"・キャッチコピー（34文字以内）：小さな部品で、みんなの毎日の暮らしを動かしています！（26文字）",
+"・企業データ（100文字程度）：所在地：静岡県焼津市本町2-5-10／設立：1975年4月1日／従業員数：85名／公式HP：https://example.co.jp/company/（60文字）",
+"・私たちの仕事（180〜200文字以内）：私たちは、自動車や家電の中で使われる小さな金属の部品をつくっています。目に見えないところで、機械が正しく動くように支えているのが私たちの部品です。焼津市の工場では、最新の機械と職人の技を組み合わせて、0.01ミリの正確さで形を整えています。できあがった部品は、日本だけでなく世界中の工場へ届けられ、みなさんの毎日の暮らしを支えています。（183文字）","",
+"■ 2. 業種ブロック（テンプレート パターンA）",
+"・タイトル：「〇〇の仕事とは？」（15〜18文字）：金属の部品をつくる仕事とは？（14文字）",
+"・導入コピー（15〜18文字）：0.01ミリの正確さで形をつくる！（17文字）",
+"・導入本文（80〜85文字）：金属の板や棒を削ったり曲げたりして、機械の中で使われる部品をつくります。一つでも形がずれると機械が動かないため、何度も測って確かめながら仕上げています。（81文字）","",
+"【C-1】","・見出し：設計図どおりに金属を削る（12文字）","・本文：コンピューターで動く機械を使い、設計図のとおりに金属を削ります。刃の向きや速さを細かく決めて、きれいな形に仕上げます。（60文字）",
+"【C-2】","・見出し：できた部品を一つずつ検査（12文字）","・本文：完成した部品の大きさを専用の道具で測ります。決められた大きさと少しでも違えば、作り直して品質を守っています。（56文字）","",
+"■ 3. PRブロック（テンプレート パターンD）",
+"・大見出し（15〜20文字）：小さな部品はどうやってできるの？（16文字）",
+"・リード文（30〜40文字）：一つの部品ができあがるまでの流れを、順番に見てみよう。（27文字）","",
+"【E-1】","・見出し：材料の金属を選ぶ（8文字）","・本文：つくる部品に合わせて、鉄やアルミなどの材料を選びます。かたさや重さを考えて決めます。（44文字）",
+"【E-2】","・見出し：機械で形をつくる（8文字）","・本文：材料を機械にセットして、削ったり穴をあけたりします。機械の動きを人がしっかり見守ります。（45文字）",
+"【E-3】","・見出し：表面をなめらかに（8文字）","・本文：削った部品の表面をみがいて、手でさわってもけがをしないように仕上げます。（37文字）",
+"【E-4】","・見出し：検査して出荷する（8文字）","・本文：大きさや傷がないかを確かめて、合格した部品だけを箱に詰めてお客さまへ届けます。（40文字）"].join("\n");
+
+/* ---------- 和暦 ---------- */
+function wareki(y,m){m=m||12;var e=[["令和",2019,5],["平成",1989,1],["昭和",1926,12],["大正",1912,7],["明治",1868,1]];
+  for(var i=0;i<e.length;i++){var s=e[i];if(y>s[1]||(y===s[1]&&m>=s[2])){var n=y-s[1]+1;return s[0]+(n===1?"元":n)}}return ""}
+function fmtDate(v){var m=String(v).match(/(\d{4})\s*年\s*(?:(\d{1,2})\s*月)?/);if(!m)return v;var y=+m[1],mo=m[2]?+m[2]:0;return y+"（"+wareki(y,mo||12)+"）年"+(mo?mo+"月":"")}
+
+/* ---------- 解析 ---------- */
+function parseLimit(spec){if(!spec)return null;var m=spec.match(/(\d+)\s*[〜~～\-－]\s*(\d+)\s*文字/);if(m)return{min:+m[1],max:+m[2]};m=spec.match(/(\d+)\s*文字以内/);if(m)return{max:+m[1]};m=spec.match(/(\d+)\s*文字程度/);if(m)return{approx:+m[1]};return null}
+function cleanVal(v){return v.replace(/[（(]\s*\d+\s*文字\s*[）)]\s*$/,"").trim()}
+function parse(txt){
+  var lines=txt.replace(/\r/g,"").split("\n"),out={company:"",pg:"",pp:"",basic:{},gyo:{items:[]},pr:{items:[]},voice:{items:[]}};
+  var joined=[];lines.forEach(function(l){var t=l.replace(/^>+\s?/,"").trim();if(!t)return;
+    if(/^[・【■（(]/.test(t)||/^【/.test(t)||!joined.length)joined.push(t);else joined[joined.length-1]+=t});
+  var sec="",item=null;
+  joined.forEach(function(t){
+    var m;
+    if((m=t.match(/【掲載テキスト原稿】\s*(.+?)\s*様?\s*$/))){out.company=m[1].replace(/\s*様$/,"");return}
+    if(/選定カセット/.test(t)){m=t.match(/業種ブロック\s*(?:パターン)?\s*([A-DＡ-Ｄ])/);if(m)out.pg=toHalf(m[1]);m=t.match(/PR\s*ブロック\s*(?:パターン)?\s*([A-LＡ-Ｌ])/i);if(m)out.pp=toHalf(m[1]).toUpperCase();return}
+    if(/^■/.test(t)){item=null;if(/基本/.test(t))sec="basic";else if(/業種/.test(t)){sec="gyo";m=t.match(/パターン\s*([A-DＡ-Ｄ])/);if(m&&!out.pg)out.pg=toHalf(m[1])}
+      else if(/PR/i.test(t)){sec="pr";m=t.match(/パターン\s*([A-LＡ-Ｌ])/i);if(m&&!out.pp)out.pp=toHalf(m[1]).toUpperCase()}else if(/社員|働く人/.test(t))sec="voice";return}
+    if((m=t.match(/^【\s*([CEFＣＥＦ])\s*[-－ー]\s*(\d+)\s*】/))){item={id:toHalf(m[1])+"-"+m[2]};var tgt=sec==="gyo"?out.gyo:sec==="pr"?out.pr:sec==="voice"?out.voice:null;if(tgt)tgt.items.push(item);return}
+    if(!/^・/.test(t))return;
+    var body=t.slice(1),km=body.match(/^([^：:（(]+)\s*((?:[（(][^）)]*[）)])?)\s*[：:]\s*(.*)$/);if(!km)return;
+    var key=km[1].trim(),spec=km[2],val=km[3];
+    var tm=val.match(/^「[^」]*」\s*([（(][^）)]*[）)])?\s*[：:]\s*(.*)$/);if(tm){spec=tm[1]||spec;val=tm[2]}
+    var rec={v:cleanVal(val),lim:parseLimit(spec)};
+    if(item){item[norm(key)]=rec;return}
+    if(sec==="basic")out.basic[norm(key)]=rec;else if(sec==="gyo")out.gyo[norm(key)]=rec;else if(sec==="pr")out.pr[norm(key)]=rec;
+  });
+  return out;
+}
+function toHalf(s){return s.replace(/[Ａ-Ｚ]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0xFEE0)})}
+function norm(k){
+  if(/キャッチ|コピー/.test(k)&&!/導入/.test(k))return /キャッチ/.test(k)?"catch":"copy";
+  if(/企業データ/.test(k))return"data";if(/私たちの仕事/.test(k))return"work";if(/タイトル/.test(k))return"title";
+  if(/導入コピー/.test(k))return"icopy";if(/導入本文/.test(k))return"ibody";if(/大見出し/.test(k))return"head";if(/リード/.test(k))return"lead";
+  if(/見出し/.test(k))return"h";if(/本文/.test(k))return"b";if(/肩書|部署|役職/.test(k))return"role";if(/氏名|名前/.test(k))return"name";return k}
+function parseData(v){var d={};String(v||"").split(/[／\/](?=[^\/]*[：:])/).forEach(function(p){var m=p.match(/^\s*([^：:]+)[：:]\s*(.*)$/);if(!m)return;var k=m[1].trim(),x=m[2].trim();
+  if(/所在地|住所/.test(k))d.addr=x;else if(/設立/.test(k))d.est=["設立",x];else if(/創業/.test(k))d.est=["創業",x];else if(/従業員/.test(k))d.staff=x;else if(/HP|URL|ホームページ/i.test(k))d.url=x});return d}
+
+/* ---------- 描画 ---------- */
+var imgs={};
+function T(rec,fallback,cls){var v=rec&&rec.v;return v?esc(v):'<span class="dummy">'+esc(fallback)+'</span>'}
+function ph(key,extra){return '<div class="ph'+(imgs[key]?' has':'')+'" data-k="'+key+'"'+(extra?' style="'+extra+'"':'')+'>'+(imgs[key]?'<img alt="" src="'+imgs[key]+'">':'')+'<span>'+esc(key)+'</span></div>'}
+var GYO={A:[1,1],B:[2,1,1],C:[1,1,1],D:[1,1,1,1]};
+var PRN={A:2,B:3,C:3,D:4,E:5,F:6,G:7,H:8,I:9,J:10,K:11,L:12};
+var VN={A:1,B:2,C:3,D:4};
+function render(){
+  var d=parse($("a-text").value),pg=$("a-pg").value||d.pg||"A",pp=$("a-pp").value||d.pp||"D",vp=$("a-voice").value;
+  var b=d.basic,dt=parseData(b.data&&b.data.v),gyoName=$("a-gyo").value.trim(),tel=$("a-tel").value.trim();
+  var addr=(dt.addr||"").replace(/^(静岡県|愛知県|岐阜県|三重県)/,"");
+  var url=(dt.url||"").replace(/\/$/,"");
+  var h=[];
+  h.push('<div class="sp" id="sp"><div class="bar"></div><div class="gut"></div>');
+  /* 左ページ */
+  h.push('<div class="pg l">');
+  h.push('<div class="ab tab"><div class="ic">アイコン<br>※本作成時に<br>配置</div><div class="gy">'+(gyoName?esc(gyoName):'業種名')+'</div></div>');
+  h.push('<div class="ab catch fit" data-f="キャッチコピー">'+T(b.catch,"キャッチコピー34文字以内")+'</div>');
+  h.push('<div class="ab qr"><div class="cir"><i></i></div>もっと、くわしく<br>みてみよう！</div>');
+  h.push('<div class="ab cname">'+(d.company?esc(d.company):'<span class="dummy">社名</span>')+'</div>');
+  h.push('<div class="ab badges"><b>出張授業可能です</b><b>職場見学可能です</b></div>');
+  h.push('<div class="ab cdata">所在地∕'+(addr?esc(addr):'<span class="dummy">○○市○○</span>')+'　TEL.'+(tel?esc(tel):'<span class="dummy">000-000-0000</span>')+'　'+(url?esc(url):'<span class="dummy">https://</span>')+'<br>'+
+    (dt.est?esc(dt.est[0])+'∕'+esc(fmtDate(dt.est[1])):'<span class="dummy">設立∕0000（○○）年0月</span>')+'　従業員数∕'+(dt.staff?esc(dt.staff):'<span class="dummy">000名</span>')+'（'+esc($("a-asof").value)+'）<em>校了時に最新情報へ更新</em></div>');
+  h.push('<div class="ab work"><h4>私たちの仕事</h4><div class="wb"><div class="wt fit" data-f="私たちの仕事">'+T(b.work,"本文180〜200文字")+'</div><div class="wp">'+ph("A-1")+'<div class="cap">外観</div></div></div></div>');
+  var g=d.gyo;
+  h.push('<div class="ab gyo"><div class="gt"><div class="gtx"><div class="pill fit" data-f="業種タイトル">'+T(g.title,"〇〇の仕事とは？")+'</div><div class="gcopy fit" data-f="導入コピー">'+T(g.icopy,"導入コピー15〜18文字")+'</div><div class="gbody fit" data-f="導入本文">'+T(g.ibody,"導入本文80〜85文字")+'</div></div><div class="gph">'+ph("B-1")+'</div></div>');
+  h.push('<div class="cards">');
+  GYO[pg].forEach(function(w,i){var it=g.items[i]||{},id="C-"+(i+1);
+    h.push('<div class="card" style="flex:'+w+'"><div class="ch fit" data-f="'+id+' 見出し">'+T(it.h,"見出し")+'</div>'+ph(id)+'<div class="cb fit" data-f="'+id+' 本文">'+T(it.b,"本文")+'</div></div>')});
+  h.push('</div></div><div class="num">00</div></div>');
+  /* 右ページ */
+  var p=d.pr,n=PRN[pp];
+  h.push('<div class="pg r"><div class="ab pr">');
+  if("ABCD".indexOf(pp)>=0){
+    h.push('<div class="prtop">'+ph("D-1")+'<div class="prx"><div class="pill fit" data-f="PR大見出し">'+T(p.head,"大見出し15〜20文字")+'</div><div class="lead fit" data-f="リード文">'+T(p.lead,"リード文30〜40文字")+'</div></div></div>');
+    var grid=pp==="A"?"grid-template-columns:1fr 1fr":pp==="B"?"grid-template-columns:1fr 1fr 1fr":pp==="C"?"grid-template-columns:1.15fr 1fr;grid-template-rows:1fr 1fr":"grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr";
+    h.push('<div class="pra" style="'+grid+'">');
+    for(var i=0;i<n;i++){var it=p.items[i]||{},id="E-"+(i+1),vert=(pp==="A"||pp==="B"||(pp==="C"&&i===0));
+      var st=(pp==="C"&&i===0)?' style="grid-row:1 / span 2"':'';
+      h.push('<div class="pcard '+(vert?'v':'h')+'"'+st+'>'+(vert?'':ph(id))+'<div class="px"'+(vert?' style="flex:1"':'')+'><div class="ph3 fit" data-f="'+id+' 見出し"><span class="n">'+(i+1)+'</span>'+T(it.h,"見出し")+'</div>'+(vert?ph(id,"flex:1"):'')+'<div class="pb fit" data-f="'+id+' 本文">'+T(it.b,"本文")+'</div></div></div>')}
+    h.push('</div>');
+  }else{
+    var cols=n>=11?4:2,rows=Math.ceil(n/cols);
+    h.push('<div class="prtop row"><div class="pill fit" data-f="PR大見出し">'+T(p.head,"大見出し15〜20文字")+'</div><div class="lead fit" data-f="リード文">'+T(p.lead,"リード文30〜40文字")+'</div></div>');
+    h.push('<div class="frame" style="grid-template-columns:repeat('+cols+',minmax(0,1fr));grid-template-rows:repeat('+rows+',minmax(0,1fr))">');
+    for(var j=0;j<n;j++){var it2=p.items[j]||{},id2="E-"+(j+1);
+      if(cols===2)h.push('<div class="pcard h">'+ph(id2)+'<div class="px"><div class="ph3 fit" data-f="'+id2+' 見出し"><span class="n">'+(j+1)+'</span>'+T(it2.h,"見出し")+'</div><div class="pb fit" data-f="'+id2+' 本文">'+T(it2.b,"本文")+'</div></div></div>');
+      else h.push('<div class="pcard v"><div class="ph3 fit" data-f="'+id2+' 見出し">'+T(it2.h,"見出し")+'</div>'+ph(id2,"flex:1")+'<div class="pb fit" data-f="'+id2+' 本文" style="height:9mm">'+T(it2.b,"本文")+'</div></div>')}
+    h.push('</div>');
+  }
+  h.push('</div>');
+  /* 社員ブロック */
+  var vn=VN[vp],v=d.voice;
+  h.push('<div class="ab voice"><div class="vt">＼働く人の声／</div><div class="vs">仕事のやりがいを聞いてみました。</div><div class="people" style="grid-template-columns:repeat('+vn+',minmax(0,1fr))">');
+  for(var k=0;k<vn;k++){var pv=v.items[k]||{},id3="F-"+(k+1),big=vn===1;
+    h.push('<div class="person'+(big?' big':'')+'"><div class="pt">'+ph(id3)+'<div class="nm">'+T(pv.role,"部署・役職など")+'<b>'+T(pv.name,"苗字　名前")+'さん</b></div></div><div class="bub"><div class="bc fit" data-f="'+id3+' コピー">'+T(pv.copy||pv.h,big?"キャッチコピー34文字":"キャッチコピー18文字")+'</div><div class="bb fit" data-f="'+id3+' 本文">'+T(pv.b,big?"本文200文字":"本文80文字")+'</div></div></div>')}
+  h.push('</div><div class="vnote">1〜4名のご掲載が可能です</div></div><div class="num">00</div></div></div>');
+  $("a-inner").innerHTML=h.join("");
+  fitScale();
+  /* はみ出しと文字数 */
+  var checks=[];
+  [].forEach.call(document.querySelectorAll("#sp .fit"),function(el){el.classList.remove("over");if(el.scrollHeight>el.clientHeight+1||el.scrollWidth>el.clientWidth+1){el.classList.add("over");checks.push(["ng","はみ出し："+el.getAttribute("data-f")])}});
+  function lim(label,rec){if(!rec||!rec.v||!rec.lim)return;var c=[...rec.v.replace(/\s/g,"")].length,L=rec.lim;
+    if(L.max&&c>L.max)checks.push(["ng",label+" "+c+"文字（上限"+L.max+"）"]);else if(L.min&&c<L.min)checks.push(["warn",label+" "+c+"文字（"+L.min+"文字以上）"])}
+  lim("キャッチコピー",b.catch);lim("私たちの仕事",b.work);lim("導入コピー",g.icopy);lim("導入本文",g.ibody);lim("大見出し",p.head);lim("リード文",p.lead);
+  if(!d.company)checks.push(["warn","社名が読み取れませんでした"]);
+  if(g.items.length>GYO[pg].length)checks.push(["warn","業種ブロック：原稿は"+g.items.length+"枠、パターン"+pg+"は"+GYO[pg].length+"枠です"]);
+  if(p.items.length>n)checks.push(["warn","PRブロック：原稿は"+p.items.length+"枠、パターン"+pp+"は"+n+"枠です"]);
+  $("a-checks").innerHTML=checks.length?checks.map(function(c){return'<span class="chip '+c[0]+'">'+esc(c[1])+'</span>'}).join(""):'<span class="chip ok">はみ出し・文字数の問題はありません</span>';
+  $("a-status").textContent="業種"+pg+"／PR"+pp+"／社員"+vp+"で組みました";
+}
+function fitScale(){var sp=$("sp"),st=$("a-stage");if(!sp)return;var s=Math.min(1,(st.clientWidth-24)/sp.offsetWidth);$("a-inner").style.transform="translate(12px,12px) scale("+s+")";st.style.height=(sp.offsetHeight*s+24)+"px"}
+addEventListener("resize",fitScale);
+$("a-inner").addEventListener("click",function(e){var el=e.target.closest(".ph");if(!el)return;var k=el.getAttribute("data-k");var f=document.createElement("input");f.type="file";f.accept="image/*";
+  f.onchange=function(){if(!f.files[0])return;if(imgs[k])URL.revokeObjectURL(imgs[k]);imgs[k]=URL.createObjectURL(f.files[0]);render()};f.click()});
+$("a-run").onclick=render;
+$("a-print").onclick=function(){if(!$("sp"))render();window.print()};
+["a-pg","a-pp","a-voice"].forEach(function(id){$(id).onchange=render});
+$("a-text").value=SAMPLE;
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(render);else render();
+})();
+</script>
+
+</body>
+</html>
