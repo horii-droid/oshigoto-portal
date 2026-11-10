@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>お仕事ノート制作チェック</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: 作業台。上に版元ラベル付きヘッダー、タブで5ツール切替、各ツールは「入力｜結果」の2カラム（スマホは縦積み） */
+:root{
+  --bg:#F3F5F4; --surface:#FFFFFF; --sunken:#E8ECEA; --ink:#1C2422; --muted:#5A6663; --rule:#D3DAD7;
+  --accent:#17616B; --accent-ink:#FFFFFF; --accent-soft:#DCEDEE;
+  --ng:#B3362B; --ng-soft:#F8E1DE; --warn:#8A6410; --warn-soft:#F6EBCD; --ok:#2E7550; --ok-soft:#DDEFE4;
+  --marker:#FFE97A;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#131918; --surface:#1B2321; --sunken:#111615; --ink:#E4EBE8; --muted:#9AA7A3; --rule:#2E3936;
+  --accent:#5FB7C2; --accent-ink:#0E1716; --accent-soft:#1D3437;
+  --ng:#EE8A7F; --ng-soft:#3A2220; --warn:#E5BE62; --warn-soft:#352B14; --ok:#7DCB9F; --ok-soft:#1A3326;
+  --marker:#5C5220; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#131918; --surface:#1B2321; --sunken:#111615; --ink:#E4EBE8; --muted:#9AA7A3; --rule:#2E3936;
+  --accent:#5FB7C2; --accent-ink:#0E1716; --accent-soft:#1D3437;
+  --ng:#EE8A7F; --ng-soft:#3A2220; --warn:#E5BE62; --warn-soft:#352B14; --ok:#7DCB9F; --ok-soft:#1A3326;
+  --marker:#5C5220; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.75;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 64px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 24px;padding-bottom:14px;border-bottom:2px solid var(--ink)}
+header.top h1{margin:0;font-size:1.55rem;font-weight:700;letter-spacing:.02em;text-wrap:balance}
+header.top .sub{margin:2px 0 0;color:var(--muted);font-size:.86rem}
+.beta{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;border:1.5px solid var(--accent);color:var(--accent);padding:2px 8px;border-radius:4px;vertical-align:middle;margin-left:8px}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;margin:14px 0 20px;padding-bottom:2px}
+nav.tabs a{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;text-decoration:none;color:var(--muted);font-weight:500;font-size:.92rem;border:1px solid transparent}
+nav.tabs a .k{font-family:var(--f-mono);font-size:.75rem;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--sunken);color:var(--muted)}
+nav.tabs a:hover{color:var(--ink)}
+nav.tabs a[aria-current="page"]{background:var(--surface);border-color:var(--rule);color:var(--ink)}
+nav.tabs a[aria-current="page"] .k{background:var(--accent);color:var(--accent-ink)}
+nav.tabs a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.panel-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:6px}
+.panel-head h2{margin:0;font-size:1.25rem}
+.lead{margin:0 0 18px;color:var(--muted);max-width:72ch;font-size:.92rem}
+.cols{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:20px;align-items:start}
+@media (max-width:860px){.cols{grid-template-columns:1fr}}
+.box{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:16px}
+.box h3{margin:0 0 10px;font-size:.95rem}
+label{display:block;font-size:.82rem;font-weight:700;color:var(--muted);margin:12px 0 4px}
+label:first-child{margin-top:0}
+input[type=text],input[type=date],select,textarea{width:100%;font:inherit;font-size:.92rem;color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:7px;padding:8px 10px}
+textarea{min-height:120px;resize:vertical;line-height:1.7}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+@media (max-width:480px){.row2{grid-template-columns:1fr}}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+button{font:inherit;cursor:pointer;border-radius:7px;font-size:.9rem}
+.btn{background:var(--accent);color:var(--accent-ink);border:none;padding:9px 18px;font-weight:700}
+.btn:disabled{opacity:.5;cursor:default}
+.btn2{background:transparent;color:var(--ink);border:1px solid var(--rule);padding:8px 14px}
+.btn2:hover{border-color:var(--muted)}
+.btn-s{padding:4px 10px;font-size:.8rem}
+.status{font-size:.82rem;color:var(--muted)}
+.note{font-size:.8rem;color:var(--muted);margin:10px 0 0}
+.empty{color:var(--muted);font-size:.9rem;padding:22px 8px;text-align:center;border:1.5px dashed var(--rule);border-radius:10px}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:.75rem;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.chip.ng{background:var(--ng-soft);color:var(--ng)} .chip.warn{background:var(--warn-soft);color:var(--warn)} .chip.ok{background:var(--ok-soft);color:var(--ok)} .chip.info{background:var(--accent-soft);color:var(--accent)}
+.sample-tag{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;color:var(--warn);background:var(--warn-soft);padding:2px 8px;border-radius:4px}
+/* draft output */
+.draft h4{margin:14px 0 4px;font-size:.78rem;color:var(--muted);letter-spacing:.06em}
+.draft .catch{font-size:1.3rem;font-weight:700;line-height:1.5;text-wrap:balance;margin:0}
+.draft p{margin:0}
+.draft .voice{border-left:3px solid var(--accent);padding:4px 0 4px 12px}
+.draft ul{margin:4px 0 0;padding-left:1.2em}
+/* findings */
+.findings{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.finding{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:start;padding:8px 10px;border-radius:8px;background:var(--sunken);font-size:.86rem}
+.finding b{font-weight:700}
+.finding .sug{color:var(--ok);font-weight:700}
+mark.ng{background:var(--ng-soft);color:var(--ng);text-decoration:underline wavy var(--ng);text-underline-offset:3px;border-radius:3px}
+mark.warn{background:var(--warn-soft);color:var(--warn);text-decoration:underline wavy var(--warn);text-underline-offset:3px;border-radius:3px}
+.hl{white-space:pre-wrap;background:var(--bg);border:1px solid var(--rule);border-radius:8px;padding:12px;font-size:.9rem;line-height:2}
+/* intake */
+.checklist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.checklist li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:8px 10px;border-radius:8px;background:var(--sunken);font-size:.88rem}
+.drop{border:1.5px dashed var(--rule);border-radius:8px;padding:14px;text-align:center;color:var(--muted);font-size:.85rem;cursor:pointer}
+.drop.over{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.drop input{display:none}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:10px}
+.thumb{border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--bg);font-size:.72rem}
+.thumb img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;max-width:100%}
+.thumb div{padding:4px 6px;font-family:var(--f-mono);line-height:1.4}
+pre.copy{white-space:pre-wrap;background:var(--bg);border:1px solid var(--rule);border-radius:8px;padding:12px;font-family:var(--f-body);font-size:.86rem;margin:8px 0 0}
+/* revise */
+.counter{display:flex;align-items:center;gap:14px;padding:12px;border-radius:10px;background:var(--sunken);margin-top:12px}
+.counter .n{font-family:var(--f-mono);font-size:2rem;line-height:1}
+.counter .n small{font-size:.9rem;color:var(--muted)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--rule);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:.86rem;background:var(--surface)}
+th{text-align:left;font-size:.74rem;color:var(--muted);background:var(--sunken);padding:8px 10px;border-bottom:1px solid var(--rule);white-space:nowrap;font-weight:700}
+td{padding:8px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td .before{color:var(--ng);text-decoration:line-through}
+td .after{color:var(--ok);font-weight:700}
+/* board */
+.board-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.board-bar select{width:auto}
+.summary{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.days{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:500}
+.row-done td{color:var(--muted)}
+.cell-actions{display:flex;flex-wrap:wrap;gap:4px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:8px;font-size:.86rem;z-index:20}
+section.panel[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>お仕事ノート制作チェック<span class="beta">BETA</span></h1>
+      <p class="sub">協賛社の素材と原稿を、中広の制作規定に照らして機械的にチェックします。入力した内容や写真はこのブラウザの中だけで処理し、どこにも送りません。</p>
+    </div>
+    <p class="sub">基準：中広「制作規定」2025-11-26版／「掲載ガイドブック」2026-02-01版</p>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <a href="#intake"><span class="k">1</span>素材チェック</a>
+    <a href="#check"><span class="k">2</span>原稿チェック</a>
+  </nav>
+
+  <!-- B -->
+  <section class="panel" id="p-intake">
+    <div class="panel-head"><h2>1. 素材チェック</h2><span class="chip info">ブラウザ内で判定</span></div>
+    <p class="lead">協賛社から届いた基本情報と写真を入れると、足りない物と規定に合わない所をその場で出します。営業が田中さんに依頼する前に通しておくと、往復が減ります。</p>
+    <div class="cols">
+      <div class="box">
+        <div class="row2">
+          <div><label for="b-edition">版</label><input type="text" id="b-edition" value="N焼津市版"></div>
+          <div><label for="b-company">社名（正式名称）</label><input type="text" id="b-company" value="㈱サンプル精工"></div>
+        </div>
+        <label for="b-address">所在地</label><input type="text" id="b-address" value="静岡県焼津市本町2丁目5番10号">
+        <div class="row2">
+          <div><label for="b-tel">電話番号（複数あれば改行）</label><textarea id="b-tel" style="min-height:64px">054-000-0000
+090-0000-0000</textarea></div>
+          <div><label for="b-url">URL（複数あれば改行）</label><textarea id="b-url" style="min-height:64px">https://example.co.jp/company/</textarea></div>
+        </div>
+        <div class="row2">
+          <div><label for="b-founded">創業・設立</label><input type="text" id="b-founded" value="創業1968年／設立1975年"></div>
+          <div><label for="b-staff">従業員数</label><input type="text" id="b-staff" value="85名"></div>
+        </div>
+        <label>写真（働く人・仕事風景・社屋など）</label>
+        <div class="drop" id="b-drop" tabindex="0" role="button">写真をドラッグ＆ドロップ、またはクリックして選択<br><small>画像はこのブラウザの中だけで確認し、どこにも送りません</small><input type="file" id="b-files" accept="image/*" multiple></div>
+        <div class="thumbs" id="b-thumbs"></div>
+        <div class="row2" style="margin-top:6px">
+          <div><label><input type="checkbox" id="b-logo"> ロゴデータを受け取った</label></div>
+          <div><label><input type="checkbox" id="b-voice"> 働く人の声（コメント）を受け取った</label></div>
+        </div>
+        <div class="actions"><button class="btn" id="b-run" type="button">チェックする</button><span class="status" id="b-status"></span></div>
+        <p class="note">※写真の推奨サイズ（長辺1,500px以上）は試作用の目安です。正式な基準がわかり次第直します。</p>
+      </div>
+      <div class="box">
+        <h3>チェック結果</h3>
+        <ul class="checklist" id="b-out"><li><span class="chip info">例</span><span>左は入力例です。「チェックする」を押すと結果が出ます。</span></li></ul>
+        <h3 style="margin-top:16px">田中さんへの受付票（コピーして依頼メールに貼れます）</h3>
+        <pre class="copy" id="b-ticket">チェック後にここへ受付票が出ます。</pre>
+        <div class="actions"><button class="btn2" id="b-copy" type="button">受付票をコピー</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- E -->
+  <section class="panel" id="p-check" hidden>
+    <div class="panel-head"><h2>2. 原稿チェック</h2><span class="chip info">ブラウザ内で判定</span></div>
+    <p class="lead">原稿のテキストを貼ると、NG表現・表記ゆれに加えて、電話番号やURLの件数、社名の略称、住所の書き方まで確認します。入稿前の最終確認用です。</p>
+    <div class="cols">
+      <div class="box">
+        <label for="e-text">原稿テキスト</label>
+        <textarea id="e-text" style="min-height:260px">【入力例】
+弊社は創業1968年、設立1975年の金属加工メーカーです。県内初の技術で、子供たちの暮らしを支える部品を作っています。
+皆様、ぜひ工場見学にお越しください！
+㈱サンプル精工　静岡県焼津市本町2丁目5番10号
+TEL 054-000-0000／090-0000-0000
+https://example.co.jp　https://www.instagram.com/sample</textarea>
+        <div class="actions"><button class="btn" id="e-run" type="button">チェックする</button><button class="btn2" id="e-clear" type="button">クリア</button><span class="status" id="e-status"></span></div>
+        <p class="note">※機械的な一次チェックです。写真・ロゴの写り込みや比較表現の裏付けは判断できません。</p>
+      </div>
+      <div class="box">
+        <h3>結果</h3>
+        <div id="e-out"><div class="empty">左の原稿で「チェックする」を押すと、該当箇所に色が付きます。</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id)};
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function reEsc(s){return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}
+var toastT;
+function toast(msg){var t=document.querySelector(".toast");if(!t){t=document.createElement("div");t.className="toast";t.setAttribute("role","status");document.body.appendChild(t)}t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(function(){t.hidden=true},2200)}
+function copyText(text,fallbackEl){
+  try{navigator.clipboard.writeText(text).then(function(){toast("コピーしました")},function(){selectEl(fallbackEl)})}catch(e){selectEl(fallbackEl)}
+}
+function selectEl(el){if(!el)return;var r=document.createRange();r.selectNodeContents(el);var s=getSelection();s.removeAllRanges();s.addRange(r);toast("選択しました。Ctrl+Cでコピーしてください")}
+function today(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function daysSince(ymd){if(!ymd)return null;var p=ymd.split("-");var d=new Date(+p[0],+p[1]-1,+p[2]);var n=new Date();n.setHours(0,0,0,0);return Math.round((n-d)/86400000)}
+
+/* ---------- tabs ---------- */
+var TABS=["intake","check"];
+function show(){var h=(location.hash||"#intake").slice(1);if(TABS.indexOf(h)<0)h="intake";
+  TABS.forEach(function(t){$("p-"+t).hidden=(t!==h)});
+  document.querySelectorAll("#tabs a").forEach(function(a){if(a.getAttribute("href")==="#"+h)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
+}
+addEventListener("hashchange",show);
+
+/* ---------- shared rule checker (E, A) ---------- */
+var RULES=[
+ {cat:"誘導表現",sev:"ng",words:["ご購入ください","ご利用ください","お問い合わせください","お試しください","お越しください","お待ちしております","ご来店","ご応募ください"],note:"来場・購入・問い合わせを促す表現は使えません。事業や取り組みの紹介に言い換えてください。"},
+ {cat:"比較・最大級",sev:"ng",words:["ナンバー1","ナンバーワン","オンリーワン","業界初","日本初","県内初","市内初","町内初","業界最大","日本最大","県内最大","最大手","唯一の"],note:"比較・最大級表現は原則NGです。第三者の出典があれば「トップクラス」等に。"},
+ {cat:"比較・最大級",sev:"warn",regex:/No\.?\s?1|1位/gi,note:"順位を示す表現です。第三者の出典があるか確認してください。"},
+ {cat:"略語・固有名詞",sev:"ng",words:["スマホ"],sug:"スマートフォン",note:"省略語は使えません。"},
+ {cat:"略語・固有名詞",sev:"ng",regex:/iPhone/gi,sug:"スマートフォン",note:"商品名は一般名称にしてください。"},
+ {cat:"略語・固有名詞",sev:"ng",regex:/iPad/gi,sug:"タブレット",note:"商品名は一般名称にしてください。"},
+ {cat:"一人称",sev:"ng",words:["弊社","当社","わが社","我が社"],sug:"私たち",note:"一人称は「私たち」に統一します。"},
+ {cat:"一人称",sev:"warn",regex:/自社(?!製品|サービス|工場|ブランド|開発)/g,sug:"私たち",note:"「自社」は原則NG（「自社製品」等の複合語は可）。"},
+ {cat:"社名の略称",sev:"ng",regex:/㈱|㈲|[（(]株[）)]|[（(]有[）)]/g,sug:"株式会社／有限会社",note:"法人の種類は省略しません。"},
+ {cat:"表記ゆれ",sev:"warn",words:["皆様","皆さま"],sug:"みなさん／みなさま",note:"表記統一語句です。"},
+ {cat:"表記ゆれ",sev:"warn",words:["子供","こども"],sug:"子ども",note:"表記統一語句です。"},
+ {cat:"表記ゆれ",sev:"warn",words:["お客様"],sug:"お客さま",note:"表記統一語句です。"},
+ {cat:"表記ゆれ",sev:"warn",words:["色々"],sug:"いろいろ",note:"表記統一語句です。"},
+ {cat:"表記ゆれ",sev:"warn",words:["様々"],sug:"さまざま",note:"表記統一語句です。"},
+ {cat:"表記ゆれ",sev:"warn",words:["活かす"],sug:"生かす",note:"表記統一語句です。"},
+ {cat:"表記ゆれ",sev:"warn",words:["出来る"],sug:"できる",note:"表記統一語句です。"},
+ {cat:"表記ゆれ",sev:"warn",words:["打合せ"],sug:"打ち合わせ",note:"表記統一語句です。"},
+ {cat:"表記ゆれ",sev:"warn",words:["取組み","取組"],sug:"取り組み",note:"表記統一語句です。"},
+ {cat:"表記ゆれ",sev:"warn",words:["しくみ","仕組"],sug:"仕組み",note:"表記統一語句です。"},
+ {cat:"表記ゆれ",sev:"warn",words:["嬉しい"],sug:"うれしい",note:"表記統一語句です。"},
+ {cat:"表記ゆれ",sev:"warn",words:["くらし"],sug:"暮らし",note:"表記統一語句です。"},
+ {cat:"表記ゆれ",sev:"warn",words:["ひとりひとり"],sug:"一人ひとり",note:"表記統一語句です。"},
+ {cat:"住所",sev:"warn",regex:/(静岡県|愛知県|岐阜県|三重県)(?=\S*[市町村])/g,note:"所在地の県名は省略します。"},
+ {cat:"住所",sev:"warn",regex:/\d+\s?(丁目|番地|番)(?=\s?\d)/g,note:"「丁目」「番地」「号」はハイフン表記に統一します。"},
+ {cat:"電話番号",sev:"ng",regex:/0[789]0[-‐ー−\s]?\d{4}[-‐ー−\s]?\d{4}/g,note:"携帯電話番号は原則掲載できません。"},
+ {cat:"URL",sev:"ng",regex:/https?:\/\/(www\.)?(instagram\.com|facebook\.com|x\.com|twitter\.com|tiktok\.com|line\.me|youtube\.com|lin\.ee)\S*/gi,note:"SNSへのリンクは掲載できません。"},
+ {cat:"URL",sev:"warn",regex:/https?:\/\/\S*(recruit|saiyo|indeed|kyujin|shop|cart)\S*/gi,note:"求人・購入ページへのリンクは不可。会社概要ページを推奨します。"}
+];
+function findMatches(text){
+  var out=[];
+  RULES.forEach(function(r){
+    var res=[];(r.words||[]).forEach(function(w){res.push(new RegExp(reEsc(w),"g"))});if(r.regex)res.push(new RegExp(r.regex.source,r.regex.flags));
+    res.forEach(function(re){var m;while((m=re.exec(text))!==null){if(!m[0].length){re.lastIndex++;continue}out.push({s:m.index,e:m.index+m[0].length,t:m[0],cat:r.cat,sev:r.sev,note:r.note,sug:r.sug})}});
+  });
+  out.sort(function(a,b){return a.s-b.s||(b.e-b.s)-(a.e-a.s)});
+  var res=[],last=-1;out.forEach(function(m){if(m.s>=last){res.push(m);last=m.e}});return res;
+}
+function countChecks(text){
+  var extra=[];
+  var tels=(text.match(/0\d{1,4}[-‐ー−]\d{1,4}[-‐ー−]\d{3,4}|0120[-‐ー−]?\d{2,3}[-‐ー−]?\d{3}/g)||[]);
+  var uniqTel=tels.filter(function(v,i,a){return a.indexOf(v)===i});
+  if(uniqTel.length>1)extra.push({cat:"電話番号",sev:"warn",t:uniqTel.length+"件",note:"電話番号は1件のみです（"+uniqTel.join("、")+"）。"});
+  var urls=(text.match(/https?:\/\/[^\s　、）)」]+/g)||[]).filter(function(v,i,a){return a.indexOf(v)===i});
+  if(urls.length>1)extra.push({cat:"URL",sev:"warn",t:urls.length+"件",note:"URLは1件のみです。"});
+  if(/創業/.test(text)&&/設立/.test(text))extra.push({cat:"創業・設立",sev:"warn",t:"両方あり",note:"創業年と設立年はどちらか一方だけ載せます。"});
+  return extra;
+}
+function renderCheck(text,el,statusEl){
+  var ms=findMatches(text),ex=countChecks(text);
+  var ng=ms.filter(function(m){return m.sev==="ng"}).length+ex.filter(function(m){return m.sev==="ng"}).length;
+  var wa=ms.length+ex.length-ng;
+  var html='<div class="summary">'+(ng?'<span class="chip ng">NG '+ng+'件</span>':"")+(wa?'<span class="chip warn">要確認 '+wa+'件</span>':"")+(!ng&&!wa?'<span class="chip ok">機械チェックでは該当なし</span>':"")+'</div>';
+  var hl="",cur=0;ms.forEach(function(m,i){hl+=esc(text.slice(cur,m.s))+'<mark class="'+m.sev+'" title="'+esc(m.cat+"："+m.note)+'">'+esc(m.t)+'<sup>'+(i+1)+'</sup></mark>';cur=m.e});hl+=esc(text.slice(cur));
+  html+='<div class="hl">'+hl+'</div><div class="findings">';
+  ms.forEach(function(m,i){html+='<div class="finding"><span class="chip '+m.sev+'">'+(i+1)+" "+esc(m.cat)+'</span><span><b>「'+esc(m.t)+'」</b> '+esc(m.note)+(m.sug?' <span class="sug">→ '+esc(m.sug)+'</span>':"")+'</span></div>'});
+  ex.forEach(function(m){html+='<div class="finding"><span class="chip '+m.sev+'">'+esc(m.cat)+'</span><span><b>'+esc(m.t)+'</b> '+esc(m.note)+'</span></div>'});
+  html+='</div>';el.innerHTML=html;if(statusEl)statusEl.textContent="NG "+ng+"件／要確認 "+wa+"件";
+  return{ng:ng,warn:wa};
+}
+
+/* ---------- E ---------- */
+$("e-run").onclick=function(){var t=$("e-text").value;if(!t.trim()){$("e-status").textContent="原稿を貼ってください。";return}renderCheck(t,$("e-out"),$("e-status"))};
+$("e-clear").onclick=function(){$("e-text").value="";$("e-out").innerHTML='<div class="empty">左の原稿で「チェックする」を押すと、該当箇所に色が付きます。</div>';$("e-status").textContent=""};
+
+/* ---------- B ---------- */
+var bImages=[];
+function bAddFiles(files){
+  Array.prototype.forEach.call(files,function(f){
+    if(!/^image\//.test(f.type)&&!/\.(heic|heif)$/i.test(f.name)){return}
+    var item={name:f.name,size:f.size,w:0,h:0,ok:null,url:null};bImages.push(item);
+    if(/heic|heif/i.test(f.type+f.name)){item.ok=false;item.heic=true;bRenderThumbs();return}
+    var url=URL.createObjectURL(f);item.url=url;var img=new Image();
+    img.onload=function(){item.w=img.naturalWidth;item.h=img.naturalHeight;item.ok=true;bRenderThumbs()};
+    img.onerror=function(){item.ok=false;bRenderThumbs()};img.src=url;
+  });bRenderThumbs();
+}
+function bRenderThumbs(){
+  $("b-thumbs").innerHTML=bImages.map(function(it){
+    var long=Math.max(it.w,it.h);var mark=it.heic?'<span class="chip warn">HEIC</span>':(!it.ok?"…":(long>=1500?'<span class="chip ok">OK</span>':'<span class="chip warn">小さめ</span>'));
+    return '<div class="thumb">'+(it.url?'<img src="'+it.url+'" alt="">':'<div style="aspect-ratio:4/3;display:grid;place-items:center">プレビューなし</div>')+'<div>'+esc(it.name.slice(0,18))+'<br>'+(it.w?it.w+"×"+it.h:"—")+" "+mark+'</div></div>';
+  }).join("");
+}
+var drop=$("b-drop");
+drop.onclick=function(){$("b-files").click()};
+drop.onkeydown=function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();$("b-files").click()}};
+$("b-files").onchange=function(){bAddFiles(this.files);this.value=""};
+["dragenter","dragover"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.classList.add("over")})});
+["dragleave","drop"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.classList.remove("over")})});
+drop.addEventListener("drop",function(e){bAddFiles(e.dataTransfer.files)});
+function lines(v){return v.split(/\n+/).map(function(s){return s.trim()}).filter(Boolean)}
+$("b-run").onclick=function(){
+  var res=[];function add(sev,label,msg){res.push({sev:sev,label:label,msg:msg})}
+  var company=$("b-company").value.trim(),addr=$("b-address").value.trim(),tels=lines($("b-tel").value),urls=lines($("b-url").value),founded=$("b-founded").value.trim(),staff=$("b-staff").value.trim();
+  if(!company)add("ng","社名","社名が入っていません。");else if(/㈱|㈲|[（(]株[）)]|[（(]有[）)]/.test(company))add("ng","社名","「"+company+"」→ 法人の種類は省略せず「株式会社」「有限会社」と書きます。");else add("ok","社名","OK");
+  if(!addr)add("ng","所在地","所在地が入っていません。");else{var ap=[];if(/^(静岡県|愛知県|岐阜県|三重県)/.test(addr))ap.push("県名は省略");if(/丁目|番地|\d番/.test(addr))ap.push("丁目・番地・号はハイフン表記に");if(ap.length)add("warn","所在地",ap.join("／")+"（例："+addr.replace(/^(静岡県|愛知県|岐阜県|三重県)/,"").replace(/(\d+)丁目(\d+)番地?(\d+)号?/,"$1-$2-$3").replace(/(\d+)丁目(\d+)番地?/,"$1-$2")+"）");else add("ok","所在地","OK")}
+  if(!tels.length)add("warn","電話番号","電話番号が入っていません。");else{var mob=tels.filter(function(t){return/^0[789]0/.test(t.replace(/\D/g,""))});if(mob.length)add("ng","電話番号","携帯番号（"+mob.join("、")+"）は原則掲載できません。");if(tels.length>1)add("warn","電話番号",tels.length+"件あります。掲載は1件のみです。");if(!mob.length&&tels.length===1)add("ok","電話番号","OK")}
+  if(!urls.length)add("ok","URL","なし（任意）");else{var sns=urls.filter(function(u){return/instagram|facebook|x\.com|twitter|tiktok|line\.me|youtube|lin\.ee/i.test(u)});var rec=urls.filter(function(u){return/recruit|saiyo|indeed|kyujin|shop|cart/i.test(u)});if(sns.length)add("ng","URL","SNSへのリンクは不可："+sns.join("、"));if(rec.length)add("warn","URL","求人・購入ページは不可。会社概要ページを推奨："+rec.join("、"));if(urls.length>1)add("warn","URL",urls.length+"件あります。掲載は1件のみです。");if(!sns.length&&!rec.length&&urls.length===1)add("ok","URL","OK")}
+  if(!founded)add("warn","創業・設立","どちらか1つを入れてください。");else if(/創業/.test(founded)&&/設立/.test(founded))add("warn","創業・設立","両方あります。どちらか一方だけ載せます。");else add("ok","創業・設立","OK（表記例：1980（昭和55）年）");
+  if(!staff)add("warn","従業員数","入っていません。");else if(/会員|組合員|ボランティア|登録/.test(staff))add("ng","従業員数","雇用契約のある人だけが対象です。");else add("ok","従業員数","OK");
+  var imgs=bImages.filter(function(i){return i.ok!==null});
+  if(!imgs.length)add("warn","写真","写真がまだありません。");else{var small=bImages.filter(function(i){return i.ok&&Math.max(i.w,i.h)<1500});var heic=bImages.filter(function(i){return i.heic});add(small.length||heic.length?"warn":"ok","写真",bImages.length+"枚"+(small.length?"／小さめ "+small.length+"枚（長辺1,500px未満）":"")+(heic.length?"／HEIC形式 "+heic.length+"枚（JPEGに変換をお願いする）":"")+(!small.length&&!heic.length?"・サイズOK":""))}
+  add($("b-logo").checked?"ok":"warn","ロゴ",$("b-logo").checked?"受領済み":"未受領");
+  add($("b-voice").checked?"ok":"warn","働く人の声",$("b-voice").checked?"受領済み":"未受領");
+  var label={ng:"NG",warn:"要確認",ok:"OK"};
+  $("b-out").innerHTML=res.map(function(r){return'<li><span class="chip '+r.sev+'">'+label[r.sev]+'</span><span><b>'+esc(r.label)+'</b>　'+esc(r.msg)+'</span></li>'}).join("");
+  var ng=res.filter(function(r){return r.sev==="ng"}).length,wa=res.filter(function(r){return r.sev==="warn"}).length;
+  $("b-status").textContent=ng||wa?"NG "+ng+"件／要確認 "+wa+"件":"すべてOKです";
+  var mark={ng:"×",warn:"△",ok:"○"};
+  $("b-ticket").textContent="【素材受付票】"+$("b-edition").value+"　"+company+"\n確認日："+today()+"\n"+res.map(function(r){return mark[r.sev]+" "+r.label+"："+r.msg}).join("\n")+"\n\n"+(ng?"※NGが残っています。先方に確認してから依頼します。":wa?"※要確認の項目は、依頼時に補足します。":"※素材はそろっています。作成をお願いします。");
+};
+$("b-copy").onclick=function(){copyText($("b-ticket").textContent,$("b-ticket"))};
+
+show();
+})();
+</script>
+
+</body>
+</html>
