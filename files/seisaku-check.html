@@ -166,9 +166,9 @@ section.panel[hidden]{display:none!important}
       <div class="box">
         <h3>チェック結果</h3>
         <ul class="checklist" id="b-out"><li><span class="chip info">例</span><span>左は入力例です。「チェックする」を押すと結果が出ます。</span></li></ul>
-        <h3 style="margin-top:16px">田中さんへの受付票（コピーして依頼メールに貼れます）</h3>
-        <pre class="copy" id="b-ticket">チェック後にここへ受付票が出ます。</pre>
-        <div class="actions"><button class="btn2" id="b-copy" type="button">受付票をコピー</button></div>
+        <h3 style="margin-top:16px">コピー用テキスト（メールに貼れます）</h3>
+        <pre class="copy" id="b-ticket">チェック後にここへテキストが出ます。</pre>
+        <div class="actions"><button class="btn2" id="b-copy" type="button">テキストをコピー</button></div>
       </div>
     </div>
   </section>
@@ -240,7 +240,8 @@ var RULES=[
  {cat:"表記ゆれ",sev:"warn",words:["出来る"],sug:"できる",note:"表記統一語句です。"},
  {cat:"表記ゆれ",sev:"warn",words:["打合せ"],sug:"打ち合わせ",note:"表記統一語句です。"},
  {cat:"表記ゆれ",sev:"warn",words:["取組み","取組"],sug:"取り組み",note:"表記統一語句です。"},
- {cat:"表記ゆれ",sev:"warn",words:["しくみ","仕組"],sug:"仕組み",note:"表記統一語句です。"},
+ {cat:"表記ゆれ",sev:"warn",words:["しくみ"],sug:"仕組み",note:"表記統一語句です。"},
+ {cat:"表記ゆれ",sev:"warn",regex:/仕組(?!み)/g,sug:"仕組み",note:"表記統一語句です。"},
  {cat:"表記ゆれ",sev:"warn",words:["嬉しい"],sug:"うれしい",note:"表記統一語句です。"},
  {cat:"表記ゆれ",sev:"warn",words:["くらし"],sug:"暮らし",note:"表記統一語句です。"},
  {cat:"表記ゆれ",sev:"warn",words:["ひとりひとり"],sug:"一人ひとり",note:"表記統一語句です。"},
@@ -331,7 +332,7 @@ $("b-run").onclick=function(){
   $("b-status").textContent=ng||wa?"NG "+ng+"件／要確認 "+wa+"件":"すべてOKです";
   var mark={ng:"×",warn:"△",ok:"○"};
   var vals={"社名":company,"所在地":addr,"電話番号":tels.join("、"),"URL":urls.join("、"),"創業・設立":founded,"従業員数":staff};
-  $("b-ticket").textContent="【素材受付票】"+$("b-edition").value+"　"+company+"\n確認日："+today()+"\n"+res.map(function(r){var v=vals[r.label];return mark[r.sev]+" "+r.label+"："+(v?v+(r.sev==="ok"?"":"（"+r.msg+"）"):r.msg)}).join("\n")+"\n\n"+(ng?"※NGが残っています。先方に確認してから依頼します。":wa?"※要確認の項目は、依頼時に補足します。":"※素材はそろっています。作成をお願いします。");
+  $("b-ticket").textContent="【素材チェック】"+$("b-edition").value+"　"+company+"\n確認日："+today()+"\n"+res.map(function(r){var v=vals[r.label];return mark[r.sev]+" "+r.label+"："+(v?v+(r.sev==="ok"?"":"（"+r.msg+"）"):r.msg)}).join("\n");
 };
 $("b-copy").onclick=function(){copyText($("b-ticket").textContent,$("b-ticket"))};
 
