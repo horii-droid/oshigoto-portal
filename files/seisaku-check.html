@@ -158,7 +158,6 @@ section.panel[hidden]{display:none!important}
         <div class="drop" id="b-drop" tabindex="0" role="button">写真をドラッグ＆ドロップ、またはクリックして選択<br><small>画像はこのブラウザの中だけで確認し、どこにも送りません</small><input type="file" id="b-files" accept="image/*" multiple></div>
         <div class="thumbs" id="b-thumbs"></div>
         <div class="row2" style="margin-top:6px">
-          <div><label><input type="checkbox" id="b-logo"> ロゴデータを受け取った</label></div>
           <div><label><input type="checkbox" id="b-voice"> 働く人の声（コメント）を受け取った</label></div>
         </div>
         <div class="actions"><button class="btn" id="b-run" type="button">チェックする</button><span class="status" id="b-status"></span></div>
@@ -245,6 +244,7 @@ var RULES=[
  {cat:"表記ゆれ",sev:"warn",words:["嬉しい"],sug:"うれしい",note:"表記統一語句です。"},
  {cat:"表記ゆれ",sev:"warn",words:["くらし"],sug:"暮らし",note:"表記統一語句です。"},
  {cat:"表記ゆれ",sev:"warn",words:["ひとりひとり"],sug:"一人ひとり",note:"表記統一語句です。"},
+ {cat:"表記ゆれ",sev:"warn",regex:/[０-９]+/g,sug:"半角数字",note:"全角数字です。数字は半角に統一します。"},
  {cat:"住所",sev:"warn",regex:/(静岡県|愛知県|岐阜県|三重県)(?=\S*[市町村])/g,note:"所在地の県名は省略します。"},
  {cat:"住所",sev:"warn",regex:/\d+\s?(丁目|番地|番)(?=\s?\d)/g,note:"「丁目」「番地」「号」はハイフン表記に統一します。"},
  {cat:"電話番号",sev:"ng",regex:/0[789]0[-‐ー−\s]?\d{4}[-‐ー−\s]?\d{4}/g,note:"携帯電話番号は原則掲載できません。"},
@@ -324,14 +324,14 @@ $("b-run").onclick=function(){
   if(!staff)add("warn","従業員数","入っていません。");else if(/会員|組合員|ボランティア|登録/.test(staff))add("ng","従業員数","雇用契約のある人だけが対象です。");else add("ok","従業員数","OK");
   var imgs=bImages.filter(function(i){return i.ok!==null});
   if(!imgs.length)add("warn","写真","写真がまだありません。");else{var small=bImages.filter(function(i){return i.ok&&Math.max(i.w,i.h)<1500});var heic=bImages.filter(function(i){return i.heic});add(small.length||heic.length?"warn":"ok","写真",bImages.length+"枚"+(small.length?"／小さめ "+small.length+"枚（長辺1,500px未満）":"")+(heic.length?"／HEIC形式 "+heic.length+"枚（JPEGに変換をお願いする）":"")+(!small.length&&!heic.length?"・サイズOK":""))}
-  add($("b-logo").checked?"ok":"warn","ロゴ",$("b-logo").checked?"受領済み":"未受領");
   add($("b-voice").checked?"ok":"warn","働く人の声",$("b-voice").checked?"受領済み":"未受領");
   var label={ng:"NG",warn:"要確認",ok:"OK"};
   $("b-out").innerHTML=res.map(function(r){return'<li><span class="chip '+r.sev+'">'+label[r.sev]+'</span><span><b>'+esc(r.label)+'</b>　'+esc(r.msg)+'</span></li>'}).join("");
   var ng=res.filter(function(r){return r.sev==="ng"}).length,wa=res.filter(function(r){return r.sev==="warn"}).length;
   $("b-status").textContent=ng||wa?"NG "+ng+"件／要確認 "+wa+"件":"すべてOKです";
   var mark={ng:"×",warn:"△",ok:"○"};
-  $("b-ticket").textContent="【素材受付票】"+$("b-edition").value+"　"+company+"\n確認日："+today()+"\n"+res.map(function(r){return mark[r.sev]+" "+r.label+"："+r.msg}).join("\n")+"\n\n"+(ng?"※NGが残っています。先方に確認してから依頼します。":wa?"※要確認の項目は、依頼時に補足します。":"※素材はそろっています。作成をお願いします。");
+  var vals={"社名":company,"所在地":addr,"電話番号":tels.join("、"),"URL":urls.join("、"),"創業・設立":founded,"従業員数":staff};
+  $("b-ticket").textContent="【素材受付票】"+$("b-edition").value+"　"+company+"\n確認日："+today()+"\n"+res.map(function(r){var v=vals[r.label];return mark[r.sev]+" "+r.label+"："+(v?v+(r.sev==="ok"?"":"（"+r.msg+"）"):r.msg)}).join("\n")+"\n\n"+(ng?"※NGが残っています。先方に確認してから依頼します。":wa?"※要確認の項目は、依頼時に補足します。":"※素材はそろっています。作成をお願いします。");
 };
 $("b-copy").onclick=function(){copyText($("b-ticket").textContent,$("b-ticket"))};
 
